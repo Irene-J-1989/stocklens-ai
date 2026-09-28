@@ -21,6 +21,8 @@ class FinancialIntegrationTests(unittest.TestCase):
         client = FuyaoClient()
         try:
             record = client.get_financial_indicators("600519.SH", "2026-2")
+            # 财务方法只返回约定的三个字段；名称通过已接入的真实估值 API 获取。
+            stocks = client.get_valuation_snapshot("600519.SH")
         except FuyaoAPIError as exc:
             print("是否成功：否")
             self.fail(str(exc))
@@ -28,10 +30,16 @@ class FinancialIntegrationTests(unittest.TestCase):
         self.assertEqual(set(record), {"thscode", "report", field})
         self.assertEqual(record["thscode"], "600519.SH")
         self.assertEqual(record["report"], "2026-2")
+        self.assertEqual(len(stocks), 1, "估值 API 未返回所请求股票的唯一记录。")
+        self.assertEqual(stocks[0]["thscode"], record["thscode"])
+        name = stocks[0]["name"]
+        self.assertIsInstance(name, str, "估值 API 未提供股票名称。")
+        self.assertTrue(name.strip(), "估值 API 返回了空股票名称。")
         value = record[field]
         self.assertTrue(value is None or (isinstance(value, str) and bool(value.strip())))
         print("是否成功：是")
         print(f"股票代码：{record['thscode']}")
+        print(f"股票名称：{name}")
         print(f"报告期：{record['report']}")
         # 保留源数据，不擅自加百分号或乘以 100。
         print(f"营业收入同比增长率（API 原值）：{value if value is not None else '缺失（API 返回 null）'}")

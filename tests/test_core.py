@@ -2,7 +2,7 @@
 
 import unittest
 
-from src.ai_parser import parse_intent, validate_criteria
+from src.ai_parser import parse_legacy_intent as parse_intent, validate_criteria
 from src.screener import screen_stocks
 
 

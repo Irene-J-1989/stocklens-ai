@@ -19,3 +19,21 @@ def is_valid_number(value: object) -> bool:
         return isfinite(value)
     except OverflowError:
         return False
+
+
+def calculate_max_drawdown(prices: list[float]) -> float:
+    """按时间升序的收盘价计算最大回撤，返回非负比例（0.1 表示 10%）。
+
+    回撤 = (此前峰值 - 当前价格) / 此前峰值；仅基于输入窗口内的价格。
+    单个价格返回 0；空列表、缺失值及非正价格报错，不补零或跳过。
+    """
+    if not isinstance(prices, list) or not prices:
+        raise ValueError("prices 必须是非空的收盘价列表。")
+    peak = 0.0
+    max_drawdown = 0.0
+    for price in prices:
+        if not is_valid_number(price) or price <= 0:
+            raise ValueError("每个收盘价必须是有限正数，不能包含缺失值。")
+        peak = max(peak, price)
+        max_drawdown = max(max_drawdown, (peak - price) / peak)
+    return max_drawdown

@@ -3,6 +3,7 @@
 import json
 import os
 import re
+from datetime import date, datetime, time, timedelta, timezone
 from pathlib import Path
 
 import requests
@@ -14,6 +15,22 @@ from src.metrics import METRICS, is_valid_number
 DEFAULT_CACHE = Path(__file__).resolve().parents[1] / "data" / "stocks.json"
 ENV_FILE = Path(__file__).resolve().parents[1] / ".env"
 BASE_URL = "https://fuyao.aicubes.cn"
+SHANGHAI_TZ = timezone(timedelta(hours=8))
+
+
+def _date_to_ms(value: str | date | int, *, end_of_day: bool = False) -> int:
+    """日期按北京时间解释，结束日期包含全天；整数按毫秒时间戳解释。"""
+    if type(value) is int and value >= 0:
+        return value
+    if isinstance(value, str) and re.fullmatch(r"[0-9]{4}-[0-9]{2}-[0-9]{2}", value):
+        try:
+            value = date.fromisoformat(value)
+        except ValueError:
+            raise ValueError("日期不存在，请使用有效的 YYYY-MM-DD 日期。") from None
+    if type(value) is not date:
+        raise ValueError("start/end 必须是 YYYY-MM-DD、date 对象或非负毫秒时间戳。")
+    boundary = datetime.combine(value, time.min, tzinfo=SHANGHAI_TZ)
+    return int(boundary.timestamp() * 1000) + (86_400_000 - 1 if end_of_day else 0)
 
 
 class FuyaoAPIError(RuntimeError):
@@ -177,6 +194,45 @@ class FuyaoClient:
         if value is not None and (not isinstance(value, str) or not value.strip()):
             raise FuyaoAPIError("营业收入同比增长率必须是非空字符串或 null。")
         return {"thscode": data["thscode"], "report": data["report"], field: value}
+
+    def get_historical_prices(
+        self, thscode: str, start: str | date | int, end: str | date | int
+    ) -> list[dict[str, int | float]]:
+        """获取前复权日 K 线，按日期升序返回 date_ms、close_price。
+
+        日期包含起止日；也可直接传入毫秒时间戳。按指定日期区间取数，
+        无行情返回空列表，缺失/非法收盘价明确报错，不填造或跳过。
+        """
+        if not isinstance(thscode, str) or not re.fullmatch(
+            r"[0-9]{6}\.(SH|SZ|BJ)", thscode.strip().upper()
+        ):
+            raise ValueError("thscode 必须是单个股票代码，格式为六位数字加 .SH、.SZ 或 .BJ。")
+        start_ms = _date_to_ms(start)
+        end_ms = _date_to_ms(end, end_of_day=True)
+        if start_ms > end_ms:
+            raise ValueError("start 不能晚于 end。")
+        items = self._get_items(
+            "/api/a-share/prices/historical",
+            {
+                "thscode": thscode.strip().upper(), "interval": "1d",
+                "start": str(start_ms), "end": str(end_ms), "adjust": "forward",
+            },
+        )
+        records = []
+        seen = set()
+        for item in items:
+            if not isinstance(item, dict):
+                raise FuyaoAPIError("历史 K 线响应格式错误：记录必须是对象。")
+            timestamp, close = item.get("date_ms"), item.get("close_price")
+            if type(timestamp) is not int or not start_ms <= timestamp <= end_ms:
+                raise FuyaoAPIError("历史 K 线日期无效或超出请求范围。")
+            if timestamp in seen:
+                raise FuyaoAPIError("历史 K 线存在重复日期。")
+            if not is_valid_number(close) or close <= 0:
+                raise FuyaoAPIError("历史 K 线收盘价缺失或无效，必须为有限正数。")
+            seen.add(timestamp)
+            records.append({"date_ms": timestamp, "close_price": close})
+        return sorted(records, key=lambda record: record["date_ms"])
 
     def fetch_stocks(self) -> list[dict]:
         """筛选指标接口预留；成分股列表不包含筛选所需的金融指标。"""

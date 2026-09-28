@@ -21,6 +21,28 @@ class AppTests(unittest.TestCase):
     def app(self):
         return AppTest.from_file(str(ROOT / "app.py")).run(timeout=30)
 
+    def test_interpretation_and_edited_threshold(self):
+        app = self.app()
+        app.text_area[0].set_value("经营情况变好、估值合理、波动小")
+        app.button(key="parse").click().run()
+        self.assertFalse(app.exception)
+        original = app.session_state["intent"]["conditions"].copy()
+        text = "\n".join(item.value for item in app.markdown)
+        self.assertIn("为什么这样理解？", text)
+        self.assertIn("经营情况变好 → 营业收入同比增长率", text)
+        self.assertIn("波动小 → 60日最大回撤", text)
+        self.assertIn("interpretation", app.json[0].value)
+        app.number_input(key="pe_limit").set_value(25.0).run()
+        text = "\n".join(item.value for item in app.markdown)
+        self.assertIn("PE(TTM) < 25", text)
+        self.assertEqual(app.session_state["intent"]["conditions"], original)
+        app.text_area[0].set_value("帮我选好股票")
+        app.button(key="parse").click().run()
+        self.assertFalse(app.exception)
+        text = "\n".join(item.value for item in app.markdown)
+        self.assertIn("待澄清，暂不执行", text)
+        self.assertNotIn("execute", [button.key for button in app.button])
+
     def test_clarification_blocks_execution(self):
         app = self.app()
         app.text_area[0].set_value("低估值但PE超过50")
@@ -62,6 +84,25 @@ class AppTests(unittest.TestCase):
         self.assertFalse(app.exception)
         self.assertTrue(app.error)
         self.assertEqual(len(app.dataframe), 0)
+
+    def test_single_condition_execution(self):
+        if not (ROOT / "data" / "stock_dataset.csv").exists():
+            self.skipTest("需先生成真实缓存。")
+        for query, field in (("收入增长明显，不太关注短期波动", "revenue_yoy"),
+                             ("估值合理", "pe_ttm"), ("走势稳定", "max_drawdown")):
+            with self.subTest(query=query):
+                app = self.app()
+                app.text_area[0].set_value(query)
+                app.button(key="parse").click().run()
+                self.assertFalse(app.exception)
+                self.assertIn("未启用", "\n".join(item.value for item in app.markdown))
+                app.button(key="execute").click().run()
+                self.assertFalse(app.exception)
+                for result in app.session_state["run"]["results"]:
+                    active = [r for r in result["reasons"] if r["enabled"]]
+                    self.assertEqual([r["field"] for r in active], [field])
+                    self.assertEqual(result["selected"], active[0]["passed"])
+                    self.assertTrue(all(r["passed"] is None for r in result["reasons"] if not r["enabled"]))
 
     def test_condition_comparison_and_failed_retry(self):
         if not (ROOT / "data" / "stock_dataset.csv").exists():

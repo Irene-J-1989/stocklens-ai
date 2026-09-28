@@ -44,6 +44,7 @@ def screen_stocks(stock_data: list[dict], conditions: dict) -> list[dict]:
     最大回撤使用比例（0.15 = 15%），营收增速仅比较正负，不换算单位。
     reasons 保存每项的原值、阈值、是否启用、是否通过和说明；
     failed_conditions 保存未通过的条件名。关闭条件的 passed 为 None。
+    pe_max / max_drawdown_max 为 None 时关闭对应条件，不用极大阈值替代。
     旧版 logic/conditions JSON 仍返回入选原记录，供现有页面使用。
     """
     if not isinstance(conditions, dict):
@@ -55,9 +56,9 @@ def screen_stocks(stock_data: list[dict], conditions: dict) -> list[dict]:
         raise ValueError("条件必须包含且仅包含 growth_improvement、pe_max、max_drawdown_max。")
     if type(conditions["growth_improvement"]) is not bool:
         raise ValueError("growth_improvement 必须是布尔值。")
-    if not is_valid_number(conditions["pe_max"]) or conditions["pe_max"] <= 0:
+    if conditions["pe_max"] is not None and (not is_valid_number(conditions["pe_max"]) or conditions["pe_max"] <= 0):
         raise ValueError("pe_max 必须是有限正数。")
-    if not is_valid_number(conditions["max_drawdown_max"]) or not 0 <= conditions["max_drawdown_max"] <= 1:
+    if conditions["max_drawdown_max"] is not None and (not is_valid_number(conditions["max_drawdown_max"]) or not 0 <= conditions["max_drawdown_max"] <= 1):
         raise ValueError("max_drawdown_max 必须是 0～1 的比例。")
     if not isinstance(stock_data, list):
         raise ValueError("stock_data 必须是股票记录列表。")
@@ -76,8 +77,8 @@ def screen_stocks(stock_data: list[dict], conditions: dict) -> list[dict]:
         ) if field in stock), "revenue_yoy")
         rules = [
             ("growth_improvement", growth_field, ">", 0, conditions["growth_improvement"], "经营改善"),
-            ("pe_max", "pe_ttm", "<", conditions["pe_max"], True, "估值合理"),
-            ("max_drawdown_max", "max_drawdown", "<", conditions["max_drawdown_max"], True, "走势稳定"),
+            ("pe_max", "pe_ttm", "<", conditions["pe_max"], conditions["pe_max"] is not None, "估值合理"),
+            ("max_drawdown_max", "max_drawdown", "<", conditions["max_drawdown_max"], conditions["max_drawdown_max"] is not None, "走势稳定"),
         ]
         reasons, failed = [], []
         for key, field, comparison, threshold, enabled, label in rules:

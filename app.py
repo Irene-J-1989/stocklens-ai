@@ -41,6 +41,9 @@ def compare_runs(before: dict, after: dict) -> dict:
     for key, label in (("pe_max", "PE限制"), ("max_drawdown_max", "最大回撤限制")):
         old, new = old_conditions[key], new_conditions[key]
         if old != new:
+            if old is None or new is None:
+                changes.append(f"{'关闭' if new is None else '启用'}{label}")
+                continue
             values = f"{old:g} → {new:g}" if key == "pe_max" else f"{old:.2%} → {new:.2%}"
             changes.append(f"{'放宽' if new > old else '收紧'}{label}（{values}）")
     same_data = before["frame"].sort_values("code").reset_index(drop=True).equals(
@@ -157,8 +160,8 @@ def main() -> None:
         intent = parse_intent(query)
         st.session_state["intent"] = intent
         st.session_state["parsed_query"] = query
-        st.session_state["pe_limit"] = float(intent["conditions"].get("pe_max", 30))
-        st.session_state["drawdown_limit"] = float(intent["conditions"].get("max_drawdown_max", 0.15)) * 100
+        st.session_state["pe_limit"] = float(intent["conditions"].get("pe_max") or 30)
+        st.session_state["drawdown_limit"] = float(intent["conditions"].get("max_drawdown_max") or 0.15) * 100
     if "intent" not in st.session_state:
         return
     if query != st.session_state["parsed_query"]:
@@ -169,6 +172,9 @@ def main() -> None:
     intent = st.session_state["intent"]
     st.subheader("AI理解你的需求")
     conditions = intent["conditions"]
+    growth_status = intent["growth_condition"]["status"]
+    pe_status = intent["pe_condition"]["status"]
+    stability_status = intent["stability_condition"]["status"]
     # 展示当前编辑中的阈值；原始解析结果留在折叠区，不改写解析或筛选逻辑。
     growth = conditions.get("growth_improvement")
     growth_text = "营业收入同比增长率 > 0%" if growth is True else "未启用经营改善条件" if growth is False else "待补充经营改善要求"
@@ -176,6 +182,10 @@ def main() -> None:
                if "pe_max" in conditions else "待确认 PE(TTM) 上限")
     drawdown_text = (f"60日最大回撤 < {st.session_state['drawdown_limit']:g}%"
                      if "max_drawdown_max" in conditions else "待确认最大回撤上限")
+    growth_text, pe_text, drawdown_text = [
+        "未启用" if status == "disabled" else "待澄清" if status == "unknown" else description
+        for status, description in zip((growth_status, pe_status, stability_status), (growth_text, pe_text, drawdown_text))
+    ]
     for column, title, description in zip(
         st.columns(3), ("经营改善", "估值合理", "走势稳定"),
         (growth_text, pe_text, drawdown_text),
@@ -185,6 +195,13 @@ def main() -> None:
                 st.markdown(f"**{title}**")
                 st.write(description)
     st.caption("下方可调整阈值，确认后再执行筛选。" if not intent["need_clarification"] else "以上为已识别的要求，请先澄清下方提示。")
+    st.markdown("**为什么这样理解？**")
+    st.caption("用户表达 → 对应指标 → 筛选条件。这里展示产品的指标映射，不代表对任何股票的事实判断。")
+    for key, condition_text in zip(("growth_improvement", "valuation", "stability"),
+                                   (growth_text, pe_text, drawdown_text)):
+        st.write(intent.get("interpretation", {}).get(key, "映射说明暂不可用"))
+        st.write("↓ " + ("待澄清，暂不执行" if intent["need_clarification"] else condition_text))
+    st.caption("走势稳定使用60日最大回撤作为简化指标，不等同于波动率。手动修改阈值后，以当前确认值执行。")
     with st.expander("查看结构化条件", expanded=False):
         st.caption("原始 AI 解析结果；下方手动调整的阈值以确认区域为准。")
         st.json(intent)
@@ -194,11 +211,11 @@ def main() -> None:
         st.warning("请修改或补充需求，再点击“解析需求”。当前不执行筛选。")
         return
     st.subheader("3. 确认筛选条件")
-    st.caption("经营改善：营业收入同比 > 0。PE与最大回撤均使用严格小于阈值。")
+    st.caption("仅启用条件参与筛选；经营改善比较营收同比 > 0，PE与最大回撤比较严格小于阈值。")
     left, right = st.columns(2)
-    pe_limit = left.number_input("PE 阈值（小于）", min_value=0.000001, step=1.0, key="pe_limit")
-    drawdown_limit = right.number_input("最大回撤阈值（%，小于）", min_value=0.000001, max_value=100.0, step=1.0, key="drawdown_limit")
-    confirmed = {"conditions": {**intent["conditions"], "pe_max": pe_limit, "max_drawdown_max": drawdown_limit / 100},
+    pe_limit = left.number_input("PE 阈值（小于）", min_value=0.000001, step=1.0, key="pe_limit") if pe_status == "enabled" else None
+    drawdown_limit = right.number_input("最大回撤阈值（%，小于）", min_value=0.000001, max_value=100.0, step=1.0, key="drawdown_limit") if stability_status == "enabled" else None
+    confirmed = {"conditions": {"growth_improvement": growth_status == "enabled", "pe_max": pe_limit, "max_drawdown_max": drawdown_limit / 100 if drawdown_limit is not None else None},
                  "need_clarification": False, "conflicts": []}
     if "run" in st.session_state and st.session_state["run"]["intent"] != confirmed:
         st.session_state.pop("run")

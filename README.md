@@ -37,7 +37,7 @@ AI意图解析
 
 1. 用户输入需求，点击“解析需求”。
 2. 页面以“AI理解你的需求”卡片展示条件；原始 JSON 保留在“查看结构化条件”折叠区。
-3. 模糊、冲突或条件不完整时，提示用户澄清并阻止执行。
+3. 模糊或冲突的条件标记为 `unknown`，提示澄清并阻止执行；未提及或明确不关注的条件为 `disabled`，显示“未启用”，不阻止执行。
 4. 用户可修改 PE 和最大回撤上限，再确认筛选。
 5. 页面读取 `data/stock_dataset.csv`，交由确定性引擎逐只判断。
 6. 表格展示全部股票及入选状态，点击行或使用选择框查看解释卡片；再次调整条件可查看前后对比。
@@ -52,11 +52,21 @@ AI意图解析
     "max_drawdown_max": 0.15
   },
   "need_clarification": false,
-  "conflicts": []
+  "growth_condition": {"status": "enabled"},
+  "pe_condition": {"status": "enabled"},
+  "stability_condition": {"status": "enabled"},
+  "conflicts": [],
+  "interpretation": {
+    "growth_improvement": "经营改善 → 营业收入同比增长率",
+    "valuation": "估值合理 → PE(TTM)",
+    "stability": "走势稳定 → 60日最大回撤"
+  }
 }
 ```
 
-需要澄清时，`conditions` 可以不完整；这类结果不会进入执行流程。
+条件支持 `enabled`、`disabled`、`unknown` 三态，只有存在 `unknown` 才需要澄清。`conditions` 可以只包含启用项，例如“收入增长明显，不太关注短期波动”只启用经营改善。页面执行前将关闭的增长条件转换为 `false`、关闭的 PE 和回撤阈值转换为 `null`，引擎跳过对应判断。
+
+“为什么这样理解？”区域展示用户表达、对应指标和筛选条件。DeepSeek 返回的 `interpretation` 经过结构校验，并依据已校验条件和输入中出现的预定义短语规范化，不直接展示模型自由文本。规则回退也提供相同说明；未知表达使用通用意图标签，不伪造用户原话。该字段只用于展示，筛选仍使用 `conditions`。手动调整后展示当前阈值，折叠区保留解析结果。走势稳定以60日最大回撤作为简化指标，不等同于波动率。
 
 ## 4. AI角色与边界
 

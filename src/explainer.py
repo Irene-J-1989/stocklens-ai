@@ -35,6 +35,7 @@ def build_result_cards(result: dict) -> list[dict]:
             threshold_text = f"{threshold * 100:g}%" if field == "max_drawdown" else f"{threshold:g}" + ("%" if field == "revenue_yoy" else "")
             requirement = f"{label} {comparison} {threshold_text}"
         if not enabled:
+            requirement = "未启用"
             status, explanation = "未启用", "本次未启用该条件，不计入条件匹配数量。"
         elif not reason or passed is None:
             status, explanation = "待核对", "缺少唯一有效判断记录，无法说明该条件是否满足。"
@@ -65,8 +66,10 @@ def explain_conditions(criteria: dict) -> str:
         if criteria["need_clarification"]:
             return "需要澄清，暂不执行筛选。" + ("；".join(criteria["conflicts"]) or "请明确经营改善、PE上限及最大回撤上限，并确认未识别的表达。")
         conditions = criteria["conditions"]
-        growth = "营业收入同比 > 0" if conditions["growth_improvement"] else "不启用经营改善条件"
-        return (f"{growth}；PE_TTM < {conditions['pe_max']:g}；最大回撤 < {conditions['max_drawdown_max']:.2%}。"
+        growth = "营业收入同比 > 0" if conditions.get("growth_improvement") else "不启用经营改善条件"
+        pe = f"PE_TTM < {conditions['pe_max']:g}" if conditions.get("pe_max") is not None else "估值条件未启用"
+        stability = f"最大回撤 < {conditions['max_drawdown_max']:.2%}" if conditions.get("max_drawdown_max") is not None else "走势条件未启用"
+        return (f"{growth}；{pe}；{stability}。"
                 "语义默认阈值为 PE < 30、最大回撤 < 15%，属于策略参数。")
     validate_criteria(criteria)
     descriptions = []

@@ -18,16 +18,33 @@ from src.screener import screen_stocks
 class IntentTests(unittest.TestCase):
     def test_normal(self):
         result = parse_intent("帮我选出经营改善、估值合理且走势稳定的股票")
-        self.assertEqual(result, {"conditions": {"growth_improvement": True, "pe_max": 30, "max_drawdown_max": 0.15}, "need_clarification": False, "conflicts": []})
+        self.assertEqual(result["conditions"], {"growth_improvement": True, "pe_max": 30, "max_drawdown_max": 0.15})
+        self.assertFalse(result["need_clarification"])
+        self.assertEqual(set(result["interpretation"]), {"growth_improvement", "valuation", "stability"})
         json.dumps(result, allow_nan=False)
 
     def test_ambiguous(self):
-        for text in ("", "选好股票", "估值合理", "经营改善、估值合理、走势稳定、收益高", "不要求经营改善、估值合理、走势稳定", "经营改善或估值合理或走势稳定"):
+        for text in ("", "选好股票", "经营改善、估值合理、走势稳定、收益高", "经营改善或估值合理或走势稳定"):
             with self.subTest(text=text):
                 result = parse_intent(text)
                 self.assertTrue(result["need_clarification"])
                 with self.assertRaises(ValueError):
                     explain_results([], result)
+
+    def test_partial_and_disabled_conditions(self):
+        cases = [("只要求增长", "收入增长明显", "growth_condition"),
+                 ("只要求估值", "估值合理", "pe_condition"),
+                 ("只要求稳定", "走势稳定", "stability_condition"),
+                 ("明确不关注", "我想找成长性比较好的公司，希望收入增长明显，不太关注短期股价波动。", "growth_condition")]
+        for label, text, active in cases:
+            with self.subTest(label=label):
+                result = parse_intent(text)
+                self.assertFalse(result["need_clarification"])
+                for state in ("growth_condition", "pe_condition", "stability_condition"):
+                    self.assertEqual(result[state]["status"], "enabled" if state == active else "disabled")
+        result = parse_intent("不要求经营改善、估值合理、走势稳定")
+        self.assertFalse(result["need_clarification"])
+        self.assertEqual(result["growth_condition"]["status"], "disabled")
 
     def test_conflicts(self):
         for text in ("低估值但PE超过50", "PE超过50但估值合理", "经营改善但营收同比下降"):

@@ -4,7 +4,8 @@ Python + Streamlit 的「自然语言智能选股与策略解释器」MVP。
 
 输入偏好 → 意图解析生成 JSON → 确定性引擎筛选 API / 缓存数据 → 展示结果和解释。
 
-当前规则解析器和模板解释器可运行，尚未接入 LLM。
+意图解析优先通过 OpenAI SDK 调用 DeepSeek（`deepseek-chat`）；未配置密钥或调用失败时自动回退到规则解析。
+解释器仍使用确定性模板，只引用已有筛选数据。
 客户端已接入扶摇股票池、估值、财务及日 K 线 API，批量流水线可生成真实数据缓存。
 Streamlit 页面读取 `data/stock_dataset.csv`，展示可确认的条件和逐只股票的匹配详情。
 
@@ -119,3 +120,21 @@ CSV 中保存为空单元格，不补零、不生成占位金融值。股票池�
 `data/stock_dataset.meta.json` 记录来源、构建时间、报告期、实际K线窗口、缺失数量和逐项错误。
 缓存文件均受 Git 忽略规则保护。`tests/test_pipeline.py` 还通过注入请求异常检验缺失处理，
 该分支使用临时目录，不向正式缓存写入测试故障数据。
+
+## DeepSeek 意图解析
+
+在项目根目录 `.env` 中设置 `LLM_API_KEY`，无需修改扶摇密钥。
+请求固定发送至 `https://api.deepseek.com`，模型为 `deepseek-chat`。
+只发送用户需求和策略约束，不发送股票数据集、缓存或扶摇 API Key。
+模型只能返回 `conditions`、`need_clarification`、`conflicts`；字段、类型、阈值、完整性和重复 JSON 键均会校验。
+模型的自由文本冲突内容不会透传，避免夹带名称、价格或预测。
+
+缺少密钥、SDK/API 请求失败、空响应、截断或非法 JSON 时自动调用 `parse_rule_intent()`。
+部分或模糊需求允许 `conditions` 不完整，但必须要求澄清；未澄清的结果不会执行筛选。
+解析器不会生成股票或行情，只产出待用户确认的规则阈值。
+
+```powershell
+.\.venv\Scripts\python.exe -X utf8 tests/test_ai_parser_llm.py
+```
+
+此测试隔离模型响应，覆盖正常、模糊、冲突需求、缺密钥、调用失败和 JSON 校验失败；不会消耗 API 额度。

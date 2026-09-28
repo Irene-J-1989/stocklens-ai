@@ -7,7 +7,7 @@ import pandas as pd
 import streamlit as st
 
 from src.ai_parser import parse_intent
-from src.explainer import explain_conditions, explain_results
+from src.explainer import build_result_cards
 from src.screener import screen_stocks
 
 
@@ -32,10 +32,55 @@ def load_dataset() -> pd.DataFrame:
     return frame
 
 
+def compare_runs(before: dict, after: dict) -> dict:
+    """按股票代码集合比较两次成功筛选；缓存不同不归因于阈值变化。"""
+    old_codes = {item["code"] for item in before["results"] if item["selected"]}
+    new_codes = {item["code"] for item in after["results"] if item["selected"]}
+    old_conditions, new_conditions = before["intent"]["conditions"], after["intent"]["conditions"]
+    changes = []
+    for key, label in (("pe_max", "PE限制"), ("max_drawdown_max", "最大回撤限制")):
+        old, new = old_conditions[key], new_conditions[key]
+        if old != new:
+            values = f"{old:g} → {new:g}" if key == "pe_max" else f"{old:.2%} → {new:.2%}"
+            changes.append(f"{'放宽' if new > old else '收紧'}{label}（{values}）")
+    same_data = before["frame"].sort_values("code").reset_index(drop=True).equals(
+        after["frame"].sort_values("code").reset_index(drop=True))
+    added, removed = sorted(new_codes - old_codes), sorted(old_codes - new_codes)
+    delta = len(new_codes) - len(old_codes)
+    outcome = f"候选数量{'增加' if delta > 0 else '减少'} {abs(delta)} 只" if delta else "候选数量不变"
+    if not same_data:
+        explanation = f"两次筛选的数据缓存发生变化，{outcome}。本次变化不能仅归因于条件调整。"
+    elif not changes:
+        explanation = f"筛选条件未变化，{outcome}。"
+    else:
+        explanation = "、".join(changes) + f"后，{outcome}。"
+        if len(changes) > 1:
+            explanation += "这是多项条件共同作用的结果。"
+        elif added and not removed:
+            explanation += "更多股票满足调整后的限制，同时满足其他启用条件，因此进入候选范围。"
+        elif removed and not added:
+            explanation += "部分原候选股票不再满足调整后的限制，因此退出候选范围。"
+        elif not added and not removed:
+            explanation += "本次调整未改变满足全部条件的股票集合。"
+    return {"before_count": len(old_codes), "after_count": len(new_codes),
+            "added": added, "removed": removed, "same_data": same_data,
+            "changes": changes, "explanation": explanation}
+
+
 def show_results(run: dict) -> None:
     """表格和详情始终使用同一次已确认筛选快照，避免重跑后错配。"""
     frame, results = run["frame"], run["results"]
     st.subheader("4. 规则匹配结果")
+    comparison = run.get("comparison")
+    if comparison is not None:
+        with st.container(border=True):
+            st.markdown("**条件变化影响分析**")
+            for column, label, count in zip(st.columns(4),
+                ("调整前候选数量", "调整后候选数量", "新增数量", "减少数量"),
+                (comparison["before_count"], comparison["after_count"], len(comparison["added"]), len(comparison["removed"]))):
+                column.metric(label, count)
+            st.write(comparison["explanation"])
+            st.caption("与本轮需求下上一次成功筛选对比；新增、减少按股票代码计算。")
     selected_count = sum(item["selected"] for item in results)
     st.write(f"共 {len(results)} 只 · 入选 {selected_count} 只 · 未入选 {len(results) - selected_count} 只")
     if selected_count == 0:
@@ -64,30 +109,51 @@ def show_results(run: dict) -> None:
                              key=f"detail_{run['id']}")
     result = results[index]
     st.subheader(f"{result['name']} · {result['code']}")
-    st.write(explain_results([result], run["intent"]))
-    st.markdown("**入选原因 / 已通过条件**")
-    passed = [reason for reason in result["reasons"] if reason["passed"] is True]
-    if not passed:
-        st.write("没有已通过的条件。")
-    for reason in passed:
-        st.write(reason["message"])
-    st.markdown("**失败条件**")
-    if not result["failed_conditions"]:
-        st.write("无，全部启用条件均匹配。")
-    for key in result["failed_conditions"]:
-        reason = next(item for item in result["reasons"] if item["condition"] == key)
-        st.write(f"{CONDITION_LABELS[key]}：{reason['message']}")
+    cards = build_result_cards(result)
+    enabled = [card for card in cards if card["enabled"]]
+    passed = [card for card in enabled if card["passed"] is True]
+    failed = [card for card in enabled if card["passed"] is False]
+    st.metric("条件匹配", f"{len(passed)}/{len(enabled)}")
+    st.write("✅ 入选：满足全部启用条件。" if result["selected"] else "未入选：尚未满足全部启用条件。")
+    left, right = st.columns(2)
+    with left:
+        st.markdown("**已通过**")
+        for card in passed:
+            st.write(f"✅ {card['title']}")
+        if not passed:
+            st.write("暂无已通过条件")
+    with right:
+        st.markdown("**未通过**")
+        for card in failed:
+            st.write(f"❌ {card['title']}")
+        if not failed:
+            st.write("无")
+    st.markdown("**条件匹配情况**")
+    for column, card in zip(st.columns(3), cards):
+        with column:
+            with st.container(border=True):
+                icon = "✅" if card["status"] == "已满足" else "❌" if card["status"] == "未满足" else "➖"
+                st.markdown(f"**{icon} {card['title']}{card['status']}**")
+                st.caption("当前数据")
+                st.write(f"{card['label']}：{card['value']}")
+                st.caption("筛选要求")
+                st.write(card["requirement"])
+                st.caption("原因")
+                st.write(card["explanation"])
+    st.caption("数值按两位小数展示，规则匹配使用原始精度。AI负责解释投资意图；规则引擎负责筛选；金融数据提供事实。")
 
 
 def main() -> None:
     st.set_page_config(page_title="StockLens AI", page_icon="📊", layout="wide")
     st.title("StockLens AI")
-    st.caption("自然语言选股 · 确定性筛选 · 条件解释")
-    st.info("仅展示规则匹配结果，不提供买入建议或涨跌预测。意图理解使用本地规则解析。")
+    st.caption("用自然语言描述偏好，查看股票与条件的匹配情况")
+    st.info("AI负责理解你的投资意图，实际筛选基于真实金融数据和确定性规则。")
+    st.caption("仅展示规则匹配结果，不提供买入建议或涨跌预测。")
     st.subheader("1. 描述选股需求")
     query = st.text_area("自然语言选股需求", "经营改善、估值合理、走势稳定", key="query")
     if st.button("解析需求", key="parse", type="primary"):
         st.session_state.pop("run", None)
+        st.session_state.pop("last_successful_run", None)
         intent = parse_intent(query)
         st.session_state["intent"] = intent
         st.session_state["parsed_query"] = query
@@ -97,12 +163,31 @@ def main() -> None:
         return
     if query != st.session_state["parsed_query"]:
         st.session_state.pop("run", None)
+        st.session_state.pop("last_successful_run", None)
         st.warning("需求已修改，请重新解析后再确认条件。")
         return
     intent = st.session_state["intent"]
-    st.subheader("2. AI 解析结果")
-    st.json(intent)
-    st.write(explain_conditions(intent))
+    st.subheader("AI理解你的需求")
+    conditions = intent["conditions"]
+    # 展示当前编辑中的阈值；原始解析结果留在折叠区，不改写解析或筛选逻辑。
+    growth = conditions.get("growth_improvement")
+    growth_text = "营业收入同比增长率 > 0%" if growth is True else "未启用经营改善条件" if growth is False else "待补充经营改善要求"
+    pe_text = (f"PE(TTM) < {st.session_state['pe_limit']:g}"
+               if "pe_max" in conditions else "待确认 PE(TTM) 上限")
+    drawdown_text = (f"60日最大回撤 < {st.session_state['drawdown_limit']:g}%"
+                     if "max_drawdown_max" in conditions else "待确认最大回撤上限")
+    for column, title, description in zip(
+        st.columns(3), ("经营改善", "估值合理", "走势稳定"),
+        (growth_text, pe_text, drawdown_text),
+    ):
+        with column:
+            with st.container(border=True):
+                st.markdown(f"**{title}**")
+                st.write(description)
+    st.caption("下方可调整阈值，确认后再执行筛选。" if not intent["need_clarification"] else "以上为已识别的要求，请先澄清下方提示。")
+    with st.expander("查看结构化条件", expanded=False):
+        st.caption("原始 AI 解析结果；下方手动调整的阈值以确认区域为准。")
+        st.json(intent)
     if intent["need_clarification"]:
         for conflict in intent["conflicts"]:
             st.error(conflict)
@@ -135,8 +220,17 @@ def main() -> None:
                 caption += " · 未提供缓存时间信息"
             run_id = st.session_state.get("run_id", 0) + 1
             st.session_state["run_id"] = run_id
-            st.session_state["run"] = {"id": run_id, "frame": frame, "results": results,
-                                       "intent": confirmed, "source_caption": caption}
+            current_run = {"id": run_id, "frame": frame, "results": results,
+                           "intent": confirmed, "source_caption": caption}
+            previous = st.session_state.get("last_successful_run")
+            if previous is not None:
+                current_run["comparison"] = compare_runs(previous, current_run)
+            st.session_state["run"] = current_run
+            # 与展示状态分开保存，编辑阈值/请求失败不会丢失上次成功结果。
+            # 只保留一个基准快照，不累积全部历史。
+            st.session_state["last_successful_run"] = {
+                key: value for key, value in current_run.items() if key != "comparison"
+            }
         except FileNotFoundError:
             st.error("尚无股票数据缓存，请先运行数据流水线生成 data/stock_dataset.csv。")
         except (ValueError, OSError) as exc:

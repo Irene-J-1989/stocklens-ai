@@ -1,6 +1,7 @@
 """使用已有真实 CSV 的页面交互测试，不联网或刷新数据。"""
 
 from pathlib import Path
+import os
 import unittest
 from unittest.mock import patch
 
@@ -11,6 +12,12 @@ ROOT = Path(__file__).resolve().parents[1]
 
 
 class AppTests(unittest.TestCase):
+    def setUp(self):
+        # 页面回归固定走规则回退，避免因本机密钥产生网络请求和不确定结果。
+        environment = patch.dict(os.environ, {"LLM_API_KEY": ""})
+        environment.start()
+        self.addCleanup(environment.stop)
+
     def app(self):
         return AppTest.from_file(str(ROOT / "app.py")).run(timeout=30)
 
@@ -55,6 +62,54 @@ class AppTests(unittest.TestCase):
         self.assertFalse(app.exception)
         self.assertTrue(app.error)
         self.assertEqual(len(app.dataframe), 0)
+
+    def test_condition_comparison_and_failed_retry(self):
+        if not (ROOT / "data" / "stock_dataset.csv").exists():
+            self.skipTest("需先生成真实缓存。")
+        app = self.app()
+        app.button(key="parse").click().run()
+        app.button(key="execute").click().run(timeout=30)
+        baseline = app.session_state["run"]
+        self.assertNotIn("comparison", baseline)
+        old = {item["code"] for item in baseline["results"] if item["selected"]}
+        app.number_input(key="pe_limit").set_value(1.0).run()
+        app.number_input(key="drawdown_limit").set_value(1.0).run()
+        self.assertEqual(app.session_state["last_successful_run"]["id"], baseline["id"])
+        with patch.object(pd, "read_csv", side_effect=FileNotFoundError):
+            app.button(key="execute").click().run()
+        self.assertEqual(app.session_state["last_successful_run"]["id"], baseline["id"])
+        app.button(key="execute").click().run(timeout=30)
+        self.assertFalse(app.exception)
+        current = app.session_state["run"]
+        new = {item["code"] for item in current["results"] if item["selected"]}
+        comparison = current["comparison"]
+        self.assertEqual(comparison["before_count"], len(old))
+        self.assertEqual(comparison["after_count"], len(new))
+        self.assertEqual(set(comparison["added"]), new - old)
+        self.assertEqual(set(comparison["removed"]), old - new)
+        self.assertEqual(len(comparison["changes"]), 2)
+        self.assertTrue(comparison["same_data"])
+        self.assertIn("共同作用", comparison["explanation"])
+        app.number_input(key="pe_limit").set_value(30.0).run()
+        app.number_input(key="drawdown_limit").set_value(15.0).run()
+        app.button(key="execute").click().run()
+        restored = app.session_state["run"]["comparison"]
+        self.assertEqual(restored["before_count"], len(new))
+        self.assertEqual(set(restored["added"]), old - new)
+        app.button(key="execute").click().run()
+        unchanged = app.session_state["run"]["comparison"]
+        self.assertEqual(unchanged["added"], [])
+        self.assertEqual(unchanged["removed"], [])
+        # 用真实缓存的子集模拟股票池变动，不能误称是阈值导致。
+        reduced = baseline["frame"].iloc[:-1].copy()
+        if not reduced.empty:
+            with patch.object(pd, "read_csv", return_value=reduced):
+                app.button(key="execute").click().run()
+            changed_data = app.session_state["run"]["comparison"]
+            self.assertFalse(changed_data["same_data"])
+            self.assertIn("不能仅归因", changed_data["explanation"])
+        app.text_area[0].set_value("估值合理").run()
+        self.assertNotIn("last_successful_run", app.session_state)
 
 
 if __name__ == "__main__":

@@ -4,6 +4,61 @@ from src.ai_parser import validate_criteria, validate_intent
 from src.metrics import METRICS, is_valid_number
 
 
+def build_result_cards(result: dict) -> list[dict]:
+    """将已有逐项判断转为展示卡片；不读 message、不查询或生成金融数据。"""
+    definitions = [
+        ("growth_improvement", "revenue_yoy", "经营改善", "营业收入同比增长率"),
+        ("pe_max", "pe_ttm", "估值合理", "PE(TTM)"),
+        ("max_drawdown_max", "max_drawdown", "走势稳定", "60日最大回撤"),
+    ]
+    cards = []
+    for key, field, title, label in definitions:
+        matches = [r for r in result.get("reasons", []) if isinstance(r, dict)
+                   and r.get("condition") == key and r.get("field") == field]
+        reason = matches[0] if len(matches) == 1 else {}
+        enabled = reason.get("enabled") is not False
+        passed = reason.get("passed") if type(reason.get("passed")) is bool else None
+        value = reason.get("value")
+        if isinstance(value, str):
+            try:
+                value = float(value)
+            except ValueError:
+                value = None
+        valid = is_valid_number(value) and (field != "max_drawdown" or 0 <= value <= 1)
+        data_text = "数据缺失或不可用"
+        if valid:
+            data_text = f"{value:.2%}" if field == "max_drawdown" else f"{value:.2f}" + ("%" if field == "revenue_yoy" else "")
+        threshold = reason.get("threshold")
+        comparison = reason.get("operator")
+        requirement = "未提供有效筛选要求"
+        if is_valid_number(threshold) and comparison in ("<", ">", "<=", ">=", "=="):
+            threshold_text = f"{threshold * 100:g}%" if field == "max_drawdown" else f"{threshold:g}" + ("%" if field == "revenue_yoy" else "")
+            requirement = f"{label} {comparison} {threshold_text}"
+        if not enabled:
+            status, explanation = "未启用", "本次未启用该条件，不计入条件匹配数量。"
+        elif not reason or passed is None:
+            status, explanation = "待核对", "缺少唯一有效判断记录，无法说明该条件是否满足。"
+        elif not valid:
+            status, explanation = "未满足", "当前指标缺失或不可用，无法确认符合要求，因此未满足该条件。"
+        else:
+            status = "已满足" if passed else "未满足"
+            if field == "revenue_yoy":
+                explanation = ("当前营业收入同比增长，满足经营改善条件。" if passed else
+                               "当前营业收入同比下降，因此未满足经营改善条件。" if value < 0 else
+                               "当前营业收入同比没有增长，因此未满足经营改善条件。")
+            elif field == "pe_ttm":
+                explanation = ("当前市盈率低于设定上限，满足估值筛选条件。" if passed else
+                               "当前市盈率达到或超过设定上限，因此未满足估值筛选条件。")
+            else:
+                explanation = ("最近60日最大回撤低于设定上限，满足走势稳定条件。" if passed else
+                               "最近60日最大回撤达到或超过设定上限，因此未满足走势稳定条件。")
+        cards.append({"title": title, "label": label, "value": data_text,
+                      "requirement": requirement, "explanation": explanation,
+                      "enabled": enabled, "passed": passed if valid else False if reason else None,
+                      "status": status})
+    return cards
+
+
 def explain_conditions(criteria: dict) -> str:
     if "logic" not in criteria:
         validate_intent(criteria)

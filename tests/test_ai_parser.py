@@ -10,7 +10,7 @@ PROJECT_ROOT = Path(__file__).resolve().parents[1]
 if str(PROJECT_ROOT) not in sys.path:
     sys.path.insert(0, str(PROJECT_ROOT))
 
-from src.ai_parser import parse_intent, validate_intent
+from src.ai_parser import parse_rule_intent as parse_intent, validate_intent
 from src.explainer import explain_conditions, explain_results
 from src.screener import screen_stocks
 

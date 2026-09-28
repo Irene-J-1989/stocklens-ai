@@ -85,6 +85,18 @@ class AppTests(unittest.TestCase):
         self.assertTrue(app.error)
         self.assertEqual(len(app.dataframe), 0)
 
+    def test_multi_condition_display(self):
+        app = self.app()
+        app.text_area[0].set_value("帮我找估值偏低，同时走势比较稳定的股票。")
+        app.button(key="parse").click().run()
+        self.assertFalse(app.exception)
+        text = "\n".join(item.value for item in app.markdown)
+        self.assertIn("未启用", text)
+        self.assertIn("PE(TTM) < 30", text)
+        self.assertIn("60日最大回撤 < 15%", text)
+        self.assertNotIn("待澄清", text)
+        self.assertIn("execute", [button.key for button in app.button])
+
     def test_single_condition_execution(self):
         if not (ROOT / "data" / "stock_dataset.csv").exists():
             self.skipTest("需先生成真实缓存。")

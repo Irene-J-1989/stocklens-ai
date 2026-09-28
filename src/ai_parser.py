@@ -17,10 +17,11 @@ PUBLIC_STATES = {"growth_improvement": "growth_condition", "valuation": "pe_cond
 
 
 def add_condition_states(result: dict) -> dict:
-    """旧信封兼容：缺省条件关闭；有未解决语义时标记 unknown。"""
+    """逐项补全状态；全局澄清标记不能覆盖已识别条件或未提及条件。"""
+    entirely_unknown = result["need_clarification"] and not result["conditions"] and not any(state in result for state in STATUS_FIELDS)
     for state, key in STATUS_FIELDS.items():
         value = result["conditions"].get(key)
-        result.setdefault(state, {"status": "unknown" if result["need_clarification"] else
+        result.setdefault(state, {"status": "unknown" if entirely_unknown else
                                  "enabled" if value is not None and value is not False else "disabled"})
     # 面向产品的输出；旧状态字段保留，兼容现有页面和调用方。
     for public, state in PUBLIC_STATES.items():
@@ -33,11 +34,11 @@ def add_condition_states(result: dict) -> dict:
 INTERPRETATION_FIELDS = {
     "growth_improvement": ("growth_improvement", "营业收入同比增长率", ("经营情况变好", "经营改善", "营收增长", "收入增长")),
     "valuation": ("pe_max", "PE(TTM)", ("估值偏低", "市盈率不要太高", "估值合理", "低估值", "市盈率", "PE")),
-    "stability": ("max_drawdown_max", "60日最大回撤", ("走势相对稳定", "走势稳定", "波动小", "回撤小", "最大回撤")),
+    "stability": ("max_drawdown_max", "60日最大回撤", ("走势比较稳定", "走势相对稳定", "走势稳定", "波动小", "回撤小", "最大回撤")),
 }
 
 
-def build_interpretation(text: str, conditions: dict, need_clarification: bool) -> dict[str, str]:
+def build_interpretation(text: str, conditions: dict, need_clarification: bool, states: dict | None = None) -> dict[str, str]:
     """将解释规范为可审计的意图→指标映射，禁止自由文本金融事实透传。
 
     引用仅限输入中实际出现的预定义短语；未知表达不伪造用户原话。
@@ -45,14 +46,16 @@ def build_interpretation(text: str, conditions: dict, need_clarification: bool) 
     """
     result = {}
     for key, (condition, metric, phrases) in INTERPRETATION_FIELDS.items():
+        state_key = next(state for state, field in STATUS_FIELDS.items() if field == condition)
+        unclear = states[state_key]["status"] == "unknown" if states else need_clarification
         phrase = next((phrase for phrase in phrases if phrase.upper() in text.upper()), None)
         if condition not in conditions or conditions[condition] is None:
-            result[key] = f"尚未明确相关意图 → {metric}（待确认）" if need_clarification else f"未启用 → {metric}不参与本次筛选"
+            result[key] = f"尚未明确相关意图 → {metric}（待确认）" if unclear else f"未启用 → {metric}不参与本次筛选"
         elif condition == "growth_improvement" and conditions[condition] is False:
             result[key] = f"不启用经营改善条件 → {metric}不参与本次筛选"
         else:
             source = phrase or {"growth_improvement": "经营改善意图", "valuation": "估值约束意图", "stability": "走势稳定意图"}[key]
-            result[key] = ("待澄清：" if need_clarification else "") + f"{source} → {metric}"
+            result[key] = ("待澄清：" if unclear else "") + f"{source} → {metric}"
     return result
 
 
@@ -145,9 +148,7 @@ def validate_intent(result: dict) -> dict:
             raise ValueError("unknown 条件必须澄清。")
         if item["status"] in ("enabled", "disabled") and active != (item["status"] == "enabled"):
             raise ValueError("条件状态与参数不一致。")
-    if all(state in result for state in STATUS_FIELDS):
-        if result["need_clarification"] != any(result[state]["status"] == "unknown" for state in STATUS_FIELDS):
-            raise ValueError("澄清状态必须与 unknown 条件一致。")
+    # 未支持的额外要求也需澄清，但不应把已识别的三个条件全改为 unknown。
     for public, state in PUBLIC_STATES.items():
         if public in result:
             expected = dict(result.get(state, {}))
@@ -168,12 +169,13 @@ def parse_rule_intent(text: str) -> dict:
         raise ValueError("选股需求必须是字符串。")
     remaining = re.sub(r"\s+", "", text).replace("％", "%").upper()
     conditions, conflicts = {}, []
+    unknown_keys = set()
     ambiguous = not remaining
     # 先移除明确关闭的表达，避免把否定语句中的指标关键词识别为启用。
     disabled = set()
     for key, target in (("growth_improvement", r"经营改善|成长性|收入增长|营收增长"),
                         ("pe_max", r"估值合理|低估值|估值|市盈率|PE"),
-                        ("max_drawdown_max", r"走势稳定|短期股价波动|短期波动|股价波动|波动|最大回撤|回撤")):
+                        ("max_drawdown_max", r"走势比较稳定|走势稳定|短期股价波动|短期波动|股价波动|波动|最大回撤|回撤")):
         pattern = r"(?:不太关注|不关注|不要求|不需要|不考虑|不在意)(?:的)?(?:" + target + r")"
         remaining, count = re.subn(pattern, "", remaining)
         if count:
@@ -187,6 +189,7 @@ def parse_rule_intent(text: str) -> dict:
         "估值偏低": ("pe_max", 30), "市盈率不要太高": ("pe_max", 30),
         "市盈率不太高": ("pe_max", 30), "PE不要太高": ("pe_max", 30),
         "走势相对稳定": ("max_drawdown_max", 0.15),
+        "走势比较稳定": ("max_drawdown_max", 0.15),
         "走势稳定": ("max_drawdown_max", 0.15),
         "波动小": ("max_drawdown_max", 0.15), "回撤小": ("max_drawdown_max", 0.15),
     }
@@ -200,6 +203,7 @@ def parse_rule_intent(text: str) -> dict:
         value = float(match[1])
         if not is_valid_number(value) or value <= 0:
             ambiguous = True
+            unknown_keys.add("pe_max")
         else:
             conditions["pe_max"] = min(conditions.get("pe_max", value), value)
         remaining = remaining.replace(match[0], "", 1)
@@ -210,27 +214,41 @@ def parse_rule_intent(text: str) -> dict:
             conflicts.append(f"PE 要求大于 {lower:g}，同时小于 {conditions['pe_max']:g}，无法同时满足。")
         # 当前引擎没有 PE 下限字段，不能静默忽略该要求。
         ambiguous = True
+        unknown_keys.add("pe_max")
         remaining = remaining.replace(match[0], "", 1)
     drawdown_upper = re.compile(r"最大回撤(?:小于|低于|<)" + number + r"%")
     for match in list(drawdown_upper.finditer(remaining)):
         value = float(match[1]) / 100
         if not is_valid_number(value) or not 0 < value <= 1:
             ambiguous = True
+            unknown_keys.add("max_drawdown_max")
         else:
             conditions["max_drawdown_max"] = min(conditions.get("max_drawdown_max", value), value)
         remaining = remaining.replace(match[0], "", 1)
     if conditions.get("growth_improvement") and re.search(r"(?:营收|营业收入)(?:同比)?(?:下降|负增长)", remaining):
         conflicts.append("经营改善要求营业收入同比大于 0，与营收下降或负增长冲突。")
+        unknown_keys.add("growth_improvement")
     # 只移除语气词与连接词，保留否定词、或关系和未知约束以触发澄清。
-    remaining = re.sub(r"帮我|请|筛选出|筛选|选出|选择|选|我想要|我想找|我想|希望|只要求|只关注|要求|满足|同时|并且|而且|但是|但|且|和|的股票|股票|的公司|公司|[、，,；;。.!！]", "", remaining)
+    remaining = re.sub(r"帮我找|帮我|请|筛选出|筛选|选出|选择|选|我想要|我想找|我想|希望|只要求|只关注|要求|满足|同时|并且|而且|但是|但|且|和|的股票|股票|的公司|公司|[、，,；;。.!！]", "", remaining)
     for key in disabled & conditions.keys():
         conflicts.append("同一条件同时要求启用和关闭，请确认筛选要求。")
+        unknown_keys.add(key)
     need_clarification = bool(ambiguous or remaining or conflicts or not (conditions or disabled))
     if not need_clarification:
         conditions.setdefault("growth_improvement", False)
-    return validate_intent(add_condition_states({"conditions": conditions,
+    # 对尚未解析的指标表达，仅标记相关项；完全无法映射才全部 unknown。
+    for key, pattern in (("growth_improvement", "营收|收入|成长|经营"), ("pe_max", "估值|市盈率|PE"), ("max_drawdown_max", "走势|波动|回撤")):
+        if re.search(pattern, remaining):
+            unknown_keys.add(key)
+    if "或" in remaining:
+        unknown_keys.update(conditions)
+    states = {state: {"status": "unknown" if key in unknown_keys else "enabled" if conditions.get(key) is not None and conditions.get(key) is not False else "disabled"}
+              for state, key in STATUS_FIELDS.items()}
+    if need_clarification and not conditions and not disabled and not unknown_keys:
+        states = {state: {"status": "unknown"} for state in STATUS_FIELDS}
+    return validate_intent(add_condition_states({"conditions": conditions, **states,
         "need_clarification": need_clarification, "conflicts": conflicts,
-        "interpretation": build_interpretation(text, conditions, need_clarification)}))
+        "interpretation": build_interpretation(text, conditions, need_clarification, states)}))
 
 
 SYSTEM_PROMPT = """你是选股意图解析器，只将用户需求转换为 JSON 策略参数。
@@ -243,7 +261,7 @@ interpretation 必须包含 growth_improvement、valuation、stability 三个非
 不得将用户提供的股票事实复制到解释中。含糊意图注明待澄清，未表达的条件关闭，不编造原话。
 “经营情况变好”对应营业收入同比增长率；“波动小”在本产品中以60日最大回撤作为简化代理。
 growth_improvement 表示营业收入同比>0；经营改善、营收增长映射 true。
-估值合理/低估值/估值偏低/市盈率不要太高映射 pe_max=30；走势稳定映射 max_drawdown_max=0.15。
+估值合理/低估值/估值偏低/市盈率不要太高映射 pe_max=30；走势稳定/走势比较稳定映射 max_drawdown_max=0.15。
 PE和回撤上限均使用严格小于；用户明确指定更严格上限时保留用户参数。
 回撤阈值为0～1比例，例如10%转换为0.1。所有数值都是策略阈值，不是股票事实。
 含糊需求、不能表达的约束、或关系和否定含义不明时，
@@ -260,7 +278,8 @@ SYSTEM_PROMPT += """
 条件状态协议：
 增加 growth_condition、pe_condition、stability_condition，每个对象仅含 status。
 status 为 enabled（明确要求）、disabled（未提及或明确不关注）、unknown（模糊或冲突）。
-只有存在 unknown 才 need_clarification=true。冲突必须标记相关条件 unknown。
+无法映射、含不支持的额外要求或存在冲突时 need_clarification=true。冲突仅标记相关条件 unknown。
+逐项判断，未提及条件 disabled；不能因一个字段缺失或模糊而把所有条件设为 unknown。
 disabled 不得提供其阈值；关闭增长可省略 growth_improvement 或设置 false。
 只要求单项条件即可执行，绝不自动补充未提及的估值或走势要求。
 “成长性好，希望收入增长明显，不太关注短期波动”只启用增长，PE和走势 disabled。
@@ -328,12 +347,13 @@ def parse_intent(text: str) -> dict:
             result["need_clarification"] = True
             result["conflicts"] = fallback["conflicts"]
             for state in STATUS_FIELDS:
-                result[state] = {"status": "unknown"}
+                result[state] = dict(fallback[state])
+            result["conditions"] = dict(fallback["conditions"])
         add_condition_states(result)
         validate_intent(result)
         # 自由生成的解释不直接展示：用已校验条件和输入短语规范化，
         # 数值阈值仍只来自 conditions，interpretation 不参与筛选。
-        result["interpretation"] = build_interpretation(text, result["conditions"], result["need_clarification"])
+        result["interpretation"] = build_interpretation(text, result["conditions"], result["need_clarification"], result)
         return result
     except Exception:
         # SDK各类网络/鉴权/限流异常均回退；不输出异常正文，避免凭据泄露。

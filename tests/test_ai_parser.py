@@ -16,6 +16,27 @@ from src.screener import screen_stocks
 
 
 class IntentTests(unittest.TestCase):
+    def test_multiple_condition_states(self):
+        cases = [
+            ("估值偏低", ("disabled", "enabled", "disabled")),
+            ("走势稳定", ("disabled", "disabled", "enabled")),
+            ("估值偏低，同时走势稳定", ("disabled", "enabled", "enabled")),
+            ("帮我找估值偏低，同时走势比较稳定的股票。", ("disabled", "enabled", "enabled")),
+            ("成长性好但不关注波动", ("enabled", "disabled", "disabled")),
+            ("找一些好的股票", ("unknown", "unknown", "unknown")),
+            ("估值偏低，走势怎么样都行吗", ("disabled", "enabled", "unknown")),
+            ("估值偏低但PE超过50，同时走势稳定", ("disabled", "unknown", "enabled")),
+        ]
+        for text, statuses in cases:
+            with self.subTest(text=text):
+                result = parse_intent(text)
+                self.assertEqual(tuple(result[key]["status"] for key in ("growth_condition", "pe_condition", "stability_condition")), statuses)
+                self.assertEqual(result["need_clarification"], "unknown" in statuses)
+                if statuses[1] == "enabled":
+                    self.assertEqual(result["conditions"]["pe_max"], 30)
+                if statuses[2] == "enabled":
+                    self.assertEqual(result["conditions"]["max_drawdown_max"], 0.15)
+
     def test_colloquial_single_conditions(self):
         cases = [("帮我筛选估值偏低的股票，希望市盈率不要太高。", "valuation"),
                  ("希望收入增长明显", "growth_improvement"), ("希望走势稳定", "stability")]

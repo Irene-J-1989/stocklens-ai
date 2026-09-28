@@ -15,6 +15,18 @@ from src.ai_parser import parse_intent, parse_rule_intent, build_interpretation,
 
 
 class LLMParserTests(unittest.TestCase):
+    def test_multi_condition_missing_growth_and_failure(self):
+        text = "帮我找估值偏低，同时走势比较稳定的股票。"
+        expected = parse_rule_intent(text)
+        response = {"conditions": {"pe_max": 30, "max_drawdown_max": 0.15},
+                    "need_clarification": False, "conflicts": [],
+                    "interpretation": expected["interpretation"]}
+        for payload in (response, parse_rule_intent("找一些好的股票")):
+            with patch("src.ai_parser._request_deepseek", return_value=json.dumps(payload)):
+                self.assertEqual(parse_intent(text), expected)
+        with patch("src.ai_parser._request_deepseek", side_effect=TimeoutError):
+            self.assertEqual(parse_intent(text), expected)
+
     def test_known_valuation_not_blocked_by_model(self):
         text = "帮我筛选估值偏低的股票，希望市盈率不要太高。"
         response = parse_rule_intent("找一些好的股票")

@@ -200,7 +200,7 @@ def main() -> None:
     for key, condition_text in zip(("growth_improvement", "valuation", "stability"),
                                    (growth_text, pe_text, drawdown_text)):
         st.write(intent.get("interpretation", {}).get(key, "映射说明暂不可用"))
-        st.write("↓ " + ("待澄清，暂不执行" if intent["need_clarification"] else condition_text))
+        st.write("↓ " + ("待澄清，暂不执行" if condition_text == "待澄清" else condition_text))
     st.caption("走势稳定使用60日最大回撤作为简化指标，不等同于波动率。手动修改阈值后，以当前确认值执行。")
     with st.expander("查看结构化条件", expanded=False):
         st.caption("原始 AI 解析结果；下方手动调整的阈值以确认区域为准。")

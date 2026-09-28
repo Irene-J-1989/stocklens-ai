@@ -89,7 +89,7 @@ class AppTests(unittest.TestCase):
         if not (ROOT / "data" / "stock_dataset.csv").exists():
             self.skipTest("需先生成真实缓存。")
         for query, field in (("收入增长明显，不太关注短期波动", "revenue_yoy"),
-                             ("估值合理", "pe_ttm"), ("走势稳定", "max_drawdown")):
+                             ("帮我筛选估值偏低的股票，希望市盈率不要太高。", "pe_ttm"), ("走势稳定", "max_drawdown")):
             with self.subTest(query=query):
                 app = self.app()
                 app.text_area[0].set_value(query)

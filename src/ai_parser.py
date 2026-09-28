@@ -13,6 +13,7 @@ from src.metrics import METRICS, is_valid_number
 
 OPERATORS = {">", ">=", "<", "<=", "=="}
 STATUS_FIELDS = {"growth_condition": "growth_improvement", "pe_condition": "pe_max", "stability_condition": "max_drawdown_max"}
+PUBLIC_STATES = {"growth_improvement": "growth_condition", "valuation": "pe_condition", "stability": "stability_condition"}
 
 
 def add_condition_states(result: dict) -> dict:
@@ -21,10 +22,17 @@ def add_condition_states(result: dict) -> dict:
         value = result["conditions"].get(key)
         result.setdefault(state, {"status": "unknown" if result["need_clarification"] else
                                  "enabled" if value is not None and value is not False else "disabled"})
+    # 面向产品的输出；旧状态字段保留，兼容现有页面和调用方。
+    for public, state in PUBLIC_STATES.items():
+        item = dict(result[state])
+        key = STATUS_FIELDS[state]
+        if item["status"] == "enabled" and key != "growth_improvement":
+            item[key] = result["conditions"][key]
+        result[public] = item
     return result
 INTERPRETATION_FIELDS = {
     "growth_improvement": ("growth_improvement", "营业收入同比增长率", ("经营情况变好", "经营改善", "营收增长", "收入增长")),
-    "valuation": ("pe_max", "PE(TTM)", ("估值合理", "低估值", "市盈率", "PE")),
+    "valuation": ("pe_max", "PE(TTM)", ("估值偏低", "市盈率不要太高", "估值合理", "低估值", "市盈率", "PE")),
     "stability": ("max_drawdown_max", "60日最大回撤", ("走势相对稳定", "走势稳定", "波动小", "回撤小", "最大回撤")),
 }
 
@@ -101,7 +109,7 @@ def parse_legacy_intent(text: str) -> dict:
 def validate_intent(result: dict) -> dict:
     """校验新版意图信封；只接受策略参数，不接受股票事实。"""
     required = {"conditions", "need_clarification", "conflicts"}
-    if not isinstance(result, dict) or not required <= set(result) or not set(result) <= required | {"interpretation"} | set(STATUS_FIELDS):
+    if not isinstance(result, dict) or not required <= set(result) or not set(result) <= required | {"interpretation"} | set(STATUS_FIELDS) | set(PUBLIC_STATES):
         raise ValueError("意图结果只能包含 conditions、need_clarification、conflicts、interpretation。")
     if "interpretation" in result:
         interpretation = result["interpretation"]
@@ -140,6 +148,14 @@ def validate_intent(result: dict) -> dict:
     if all(state in result for state in STATUS_FIELDS):
         if result["need_clarification"] != any(result[state]["status"] == "unknown" for state in STATUS_FIELDS):
             raise ValueError("澄清状态必须与 unknown 条件一致。")
+    for public, state in PUBLIC_STATES.items():
+        if public in result:
+            expected = dict(result.get(state, {}))
+            key = STATUS_FIELDS[state]
+            if expected.get("status") == "enabled" and key != "growth_improvement":
+                expected[key] = conditions[key]
+            if result[public] != expected:
+                raise ValueError("产品状态与筛选条件不一致。")
     return result
 
 
@@ -168,6 +184,8 @@ def parse_rule_intent(text: str) -> dict:
         "收入增长明显": ("growth_improvement", True), "收入增长": ("growth_improvement", True),
         "成长性比较好": ("growth_improvement", True), "成长性好": ("growth_improvement", True),
         "估值合理": ("pe_max", 30), "低估值": ("pe_max", 30),
+        "估值偏低": ("pe_max", 30), "市盈率不要太高": ("pe_max", 30),
+        "市盈率不太高": ("pe_max", 30), "PE不要太高": ("pe_max", 30),
         "走势相对稳定": ("max_drawdown_max", 0.15),
         "走势稳定": ("max_drawdown_max", 0.15),
         "波动小": ("max_drawdown_max", 0.15), "回撤小": ("max_drawdown_max", 0.15),
@@ -207,7 +225,9 @@ def parse_rule_intent(text: str) -> dict:
     remaining = re.sub(r"帮我|请|筛选出|筛选|选出|选择|选|我想要|我想找|我想|希望|只要求|只关注|要求|满足|同时|并且|而且|但是|但|且|和|的股票|股票|的公司|公司|[、，,；;。.!！]", "", remaining)
     for key in disabled & conditions.keys():
         conflicts.append("同一条件同时要求启用和关闭，请确认筛选要求。")
-    need_clarification = bool(ambiguous or remaining or conflicts)
+    need_clarification = bool(ambiguous or remaining or conflicts or not (conditions or disabled))
+    if not need_clarification:
+        conditions.setdefault("growth_improvement", False)
     return validate_intent(add_condition_states({"conditions": conditions,
         "need_clarification": need_clarification, "conflicts": conflicts,
         "interpretation": build_interpretation(text, conditions, need_clarification)}))
@@ -220,10 +240,10 @@ SYSTEM_PROMPT = """你是选股意图解析器，只将用户需求转换为 JSO
 {"conditions":{"growth_improvement":true,"pe_max":30,"max_drawdown_max":0.15},"growth_condition":{"status":"enabled"},"pe_condition":{"status":"enabled"},"stability_condition":{"status":"enabled"},"need_clarification":false,"conflicts":[],"interpretation":{"growth_improvement":"经营情况变好 → 营业收入同比增长率","valuation":"估值合理 → PE(TTM)","stability":"走势稳定 → 60日最大回撤"}}
 interpretation 必须包含 growth_improvement、valuation、stability 三个非空字符串。
 只描述用户意图如何映射到指标，不输出任何股票、价格、实际金融数值或投资建议。
-不得将用户提供的股票事实复制到解释中。含糊或未表达的意图注明待澄清，不编造原话。
+不得将用户提供的股票事实复制到解释中。含糊意图注明待澄清，未表达的条件关闭，不编造原话。
 “经营情况变好”对应营业收入同比增长率；“波动小”在本产品中以60日最大回撤作为简化代理。
 growth_improvement 表示营业收入同比>0；经营改善、营收增长映射 true。
-估值合理/低估值映射 pe_max=30；走势稳定映射 max_drawdown_max=0.15。
+估值合理/低估值/估值偏低/市盈率不要太高映射 pe_max=30；走势稳定映射 max_drawdown_max=0.15。
 PE和回撤上限均使用严格小于；用户明确指定更严格上限时保留用户参数。
 回撤阈值为0～1比例，例如10%转换为0.1。所有数值都是策略阈值，不是股票事实。
 含糊需求、不能表达的约束、或关系和否定含义不明时，
@@ -295,6 +315,12 @@ def parse_intent(text: str) -> dict:
         validate_intent(result)
         if "interpretation" not in result:
             raise ValueError("模型响应缺少 interpretation。")
+        # 完全匹配本地语义时已有确定映射，不让模型把单项需求误改为待澄清。
+        if not fallback["need_clarification"]:
+            return fallback
+        # 明确出现不支持的指标/行业约束时，不能让模型静默丢弃要求。
+        if re.search(r"ROE|新能源|净资产收益率", text, re.IGNORECASE):
+            return fallback
         # 防止自由文本中出现名称、价格、预测等内容；只保留冲突存在与否。
         if result["conflicts"]:
             result["conflicts"] = ["条件存在冲突，请确认筛选要求。"]
@@ -303,14 +329,6 @@ def parse_intent(text: str) -> dict:
             result["conflicts"] = fallback["conflicts"]
             for state in STATUS_FIELDS:
                 result[state] = {"status": "unknown"}
-        # 本地已完整识别的明确需求约束模型，防止凭空补充未提及的条件。
-        if not fallback["need_clarification"]:
-            for state, key in STATUS_FIELDS.items():
-                if fallback[state]["status"] == "disabled":
-                    result["conditions"].pop(key, None)
-                    result[state] = {"status": "disabled"}
-            if not result["conflicts"]:
-                result["need_clarification"] = any(result.get(state, {}).get("status") == "unknown" for state in STATUS_FIELDS)
         add_condition_states(result)
         validate_intent(result)
         # 自由生成的解释不直接展示：用已校验条件和输入短语规范化，

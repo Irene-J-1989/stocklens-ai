@@ -15,6 +15,18 @@ from src.ai_parser import parse_intent, parse_rule_intent, build_interpretation,
 
 
 class LLMParserTests(unittest.TestCase):
+    def test_known_valuation_not_blocked_by_model(self):
+        text = "帮我筛选估值偏低的股票，希望市盈率不要太高。"
+        response = parse_rule_intent("找一些好的股票")
+        with patch("src.ai_parser._request_deepseek", return_value=json.dumps(response)):
+            result = parse_intent(text)
+        self.assertFalse(result["need_clarification"])
+        self.assertEqual(result["valuation"], {"status": "enabled", "pe_max": 30})
+        with patch("src.ai_parser._request_deepseek", side_effect=TimeoutError):
+            self.assertEqual(parse_intent(text), result)
+        with patch("src.ai_parser._request_deepseek", return_value=json.dumps(result)):
+            self.assertTrue(parse_intent("找ROE最高的新能源股票")["need_clarification"])
+
     def setUp(self):
         environment = patch.dict(os.environ, {"LLM_API_KEY": "unit-test-placeholder"})
         environment.start()

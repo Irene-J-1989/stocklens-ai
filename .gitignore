@@ -149,8 +149,12 @@ activemq-data/
 
 # Environments
 .env
+.env.*
+# Keep the empty, shareable configuration template.
+!.env.example
 .envrc
 .venv
+.venv/
 env/
 venv/
 ENV/
@@ -199,7 +203,7 @@ cython_debug/
 #   that can be found at https://github.com/github/gitignore/blob/main/Global/VisualStudioCode.gitignore
 #   and can be added to the global gitignore or merged into this file. However, if you prefer, 
 #   you could uncomment the following to ignore the entire vscode folder
-# .vscode/
+.vscode/
 # Temporary file for partial code execution
 tempCodeRunnerFile.py
 
@@ -216,3 +220,9 @@ __marimo__/
 
 # Streamlit
 .streamlit/secrets.toml
+.streamlit/
+secrets.toml
+
+# Local financial data caches
+data/*.csv
+data/*.json

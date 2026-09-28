@@ -2,6 +2,7 @@
 
 import json
 import os
+import re
 from pathlib import Path
 
 import requests
@@ -26,15 +27,15 @@ class FuyaoClient:
         self._api_key = os.getenv("FUYAO_API_KEY", "").strip()
         self.cache_path = Path(cache_path)
 
-    def get_hs300_components(self) -> list[dict[str, str]]:
-        """实时获取沪深 300 成分股，仅返回 API 的 thscode 和 name。"""
+    def _get_data(self, path: str, params: dict[str, str]) -> dict:
+        """复用鉴权、超时和业务错误检查，不输出密钥或原始响应。"""
         # 延迟检查密钥，确保只读本地缓存的现有页面仍可无密钥运行。
         if not self._api_key:
             raise FuyaoAPIError("缺少 FUYAO_API_KEY，请在环境变量或项目根目录 .env 中配置。")
         try:
             response = requests.get(
-                f"{BASE_URL}/api/a-share-index/constituents/ths-stock-list",
-                params={"thscode": "000300.SH"},
+                f"{BASE_URL}{path}",
+                params=params,
                 headers={"X-api-key": self._api_key, "Accept": "application/json"},
                 timeout=(10, 30),
                 # 不跟随重定向，避免将自定义鉴权头转发到其他地址。
@@ -57,17 +58,37 @@ class FuyaoClient:
         code = payload["code"]
         if code != 0:
             reason = {
+                1001: "缺少必填参数",
+                1002: "参数格式非法",
+                1003: "请求参数超出接口限制",
                 2001: "API Key 缺失或无效",
                 2003: "API Key 无权访问该接口",
+                3001: "目标股票不在 A 股代码表中",
+                5002: "上游数据源超时",
+                5003: "上游数据源不可用",
             }.get(code, "服务端拒绝请求，请查询扶摇错误码说明")
             raise FuyaoAPIError(f"扶摇 API 业务失败（code={code}）：{reason}。")
         data = payload.get("data")
-        if not isinstance(data, dict) or not isinstance(data.get("item"), list):
+        if not isinstance(data, dict):
+            raise FuyaoAPIError("扶摇 API 响应格式错误：data 必须是对象。")
+        return data
+
+    def _get_items(self, path: str, params: dict[str, str]) -> list[dict]:
+        """成分股与估值接口的列表响应适配。"""
+        data = self._get_data(path, params)
+        if not isinstance(data.get("item"), list):
             raise FuyaoAPIError("扶摇 API 响应格式错误：data.item 必须是数组。")
-        if not data["item"]:
+        return data["item"]
+
+    def get_hs300_components(self) -> list[dict[str, str]]:
+        """实时获取沪深 300 成分股，仅返回 API 的 thscode 和 name。"""
+        items = self._get_items(
+            "/api/a-share-index/constituents/ths-stock-list", {"thscode": "000300.SH"}
+        )
+        if not items:
             raise FuyaoAPIError("扶摇 API 返回空的沪深 300 成分股列表。")
         components = []
-        for index, item in enumerate(data["item"], start=1):
+        for index, item in enumerate(items, start=1):
             if not isinstance(item, dict) or any(
                 not isinstance(item.get(field), str) or not item[field].strip()
                 for field in ("thscode", "name")
@@ -75,6 +96,87 @@ class FuyaoClient:
                 raise FuyaoAPIError(f"扶摇 API 第 {index} 条记录缺少有效的 thscode 或 name。")
             components.append({"thscode": item["thscode"], "name": item["name"]})
         return components
+
+    def get_valuation_snapshot(self, thscodes: str | list[str]) -> list[dict]:
+        """查询估值快照，接受逗号分隔字符串或代码列表，统一返回记录列表。
+
+        每条记录包含 thscode、name、pe_ttm。保留 API 的 null 和负值；
+        无匹配数据返回空列表，未返回的股票不生成占位记录。
+        """
+        if isinstance(thscodes, str):
+            tokens = thscodes.split(",")
+        elif isinstance(thscodes, list):
+            tokens = thscodes
+        else:
+            raise ValueError("thscodes 必须是逗号分隔的字符串或股票代码列表。")
+        if not 1 <= len(tokens) <= 100:
+            raise ValueError("单次估值查询需要 1～100 个股票代码。")
+        if any(not isinstance(token, str) for token in tokens):
+            raise ValueError("每个股票代码必须是字符串。")
+        codes = [token.strip().upper() for token in tokens]
+        if any(not re.fullmatch(r"[0-9]{6}\.(SH|SZ|BJ)", code) for code in codes):
+            raise ValueError("股票代码格式错误，应为六位数字加 .SH、.SZ 或 .BJ。")
+        codes = list(dict.fromkeys(codes))
+        items = self._get_items(
+            "/api/a-share/valuations/snapshot", {"thscodes": ",".join(codes)}
+        )
+        records = []
+        seen = set()
+        for index, item in enumerate(items, start=1):
+            if not isinstance(item, dict) or not {"thscode", "name", "pe_ttm"} <= item.keys():
+                raise FuyaoAPIError(f"估值响应第 {index} 条记录缺少 thscode、name 或 pe_ttm 字段。")
+            code, name, pe_ttm = item["thscode"], item["name"], item["pe_ttm"]
+            if not isinstance(code, str) or code not in codes or code in seen:
+                raise FuyaoAPIError(f"估值响应第 {index} 条记录代码异常、重复或不属于请求范围。")
+            if name is not None and (not isinstance(name, str) or not name.strip()):
+                raise FuyaoAPIError(f"估值响应第 {index} 条记录的 name 必须是非空字符串或 null。")
+            if pe_ttm is not None and not is_valid_number(pe_ttm):
+                raise FuyaoAPIError(f"估值响应第 {index} 条记录的 pe_ttm 必须是有限数值或 null。")
+            seen.add(code)
+            records.append({"thscode": code, "name": name, "pe_ttm": pe_ttm})
+        return records
+
+    def get_financial_indicators(self, thscode: str, report: str) -> dict[str, str | None]:
+        """获取指定报告期的营收同比增长率，保留 API 原始字符串或 null。
+
+        report 为 YYYY-[1-4]，分别代表一季报、中报、三季报、年报。
+        不换算单位、不补零；缺少指标与显式 null 分别处理。
+        """
+        if not isinstance(thscode, str) or not re.fullmatch(
+            r"[0-9]{6}\.(SH|SZ|BJ)", thscode.strip().upper()
+        ):
+            raise ValueError("thscode 必须是单个股票代码，格式为六位数字加 .SH、.SZ 或 .BJ。")
+        if not isinstance(report, str) or not re.fullmatch(r"[0-9]{4}-[1-4]", report.strip()):
+            raise ValueError("report 格式必须为 YYYY-[1-4]，例如 2026-2。")
+        thscode, report = thscode.strip().upper(), report.strip()
+        data = self._get_data(
+            "/api/a-share/financials/indicators", {"thscode": thscode, "report": report}
+        )
+        if data.get("thscode") != thscode or data.get("report") != report:
+            raise FuyaoAPIError("财务指标响应的股票代码或报告期与请求不一致。")
+        abilities = data.get("abilities")
+        if not isinstance(abilities, list):
+            raise FuyaoAPIError("财务指标响应格式错误：abilities 必须是数组。")
+        field = "calculate_operating_income_yoy_growth_ratio"
+        matches = []
+        for ability in abilities:
+            if not isinstance(ability, dict) or not isinstance(ability.get("indicators"), list):
+                raise FuyaoAPIError("财务指标响应格式错误：指标块必须包含 indicators 数组。")
+            if ability.get("ability") != "growth":
+                continue
+            for indicator in ability["indicators"]:
+                if not isinstance(indicator, dict):
+                    raise FuyaoAPIError("财务指标响应格式错误：指标项必须是对象。")
+                if indicator.get("index_id") == field:
+                    if "value" not in indicator:
+                        raise FuyaoAPIError("营业收入同比增长率指标缺少 value 字段。")
+                    matches.append(indicator["value"])
+        if len(matches) != 1:
+            raise FuyaoAPIError("财务指标响应缺少营业收入同比增长率指标，或该指标重复。")
+        value = matches[0]
+        if value is not None and (not isinstance(value, str) or not value.strip()):
+            raise FuyaoAPIError("营业收入同比增长率必须是非空字符串或 null。")
+        return {"thscode": data["thscode"], "report": data["report"], field: value}
 
     def fetch_stocks(self) -> list[dict]:
         """筛选指标接口预留；成分股列表不包含筛选所需的金融指标。"""

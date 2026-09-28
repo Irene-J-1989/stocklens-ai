@@ -226,3 +226,6 @@ secrets.toml
 # Local financial data caches
 data/*.csv
 data/*.json
+# Allow the real demo dataset used by Streamlit Cloud.
+!data/stock_dataset.csv
+!data/stock_dataset.meta.json

@@ -1,0 +1,1518 @@
+{
+  "source": "fuyao",
+  "built_at": "2026-09-28T19:56:23.493954+08:00",
+  "report": "2026-2",
+  "kline_end": "2026-09-28",
+  "adjust": "forward",
+  "stock_count": 300,
+  "errors": [],
+  "kline_windows": {
+    "302132.SZ": {
+      "first_date_ms": 1783267200000,
+      "last_date_ms": 1790524800000,
+      "bars": 60
+    },
+    "601018.SH": {
+      "first_date_ms": 1783267200000,
+      "last_date_ms": 1790524800000,
+      "bars": 60
+    },
+    "600930.SH": {
+      "first_date_ms": 1783267200000,
+      "last_date_ms": 1790524800000,
+      "bars": 60
+    },
+    "600522.SH": {
+      "first_date_ms": 1783267200000,
+      "last_date_ms": 1790524800000,
+      "bars": 60
+    },
+    "300866.SZ": {
+      "first_date_ms": 1783267200000,
+      "last_date_ms": 1790524800000,
+      "bars": 60
+    },
+    "300803.SZ": {
+      "first_date_ms": 1783267200000,
+      "last_date_ms": 1790524800000,
+      "bars": 60
+    },
+    "300476.SZ": {
+      "first_date_ms": 1783267200000,
+      "last_date_ms": 1790524800000,
+      "bars": 60
+    },
+    "300251.SZ": {
+      "first_date_ms": 1783267200000,
+      "last_date_ms": 1790524800000,
+      "bars": 60
+    },
+    "002625.SZ": {
+      "first_date_ms": 1783267200000,
+      "last_date_ms": 1790524800000,
+      "bars": 60
+    },
+    "002384.SZ": {
+      "first_date_ms": 1783267200000,
+      "last_date_ms": 1790524800000,
+      "bars": 60
+    },
+    "688047.SH": {
+      "first_date_ms": 1783267200000,
+      "last_date_ms": 1790524800000,
+      "bars": 60
+    },
+    "601825.SH": {
+      "first_date_ms": 1783267200000,
+      "last_date_ms": 1790524800000,
+      "bars": 60
+    },
+    "601077.SH": {
+      "first_date_ms": 1783267200000,
+      "last_date_ms": 1790524800000,
+      "bars": 60
+    },
+    "301236.SZ": {
+      "first_date_ms": 1783267200000,
+      "last_date_ms": 1790524800000,
+      "bars": 60
+    },
+    "002600.SZ": {
+      "first_date_ms": 1783267200000,
+      "last_date_ms": 1790524800000,
+      "bars": 60
+    },
+    "001391.SZ": {
+      "first_date_ms": 1783267200000,
+      "last_date_ms": 1790524800000,
+      "bars": 60
+    },
+    "601058.SH": {
+      "first_date_ms": 1783267200000,
+      "last_date_ms": 1790524800000,
+      "bars": 60
+    },
+    "600066.SH": {
+      "first_date_ms": 1783267200000,
+      "last_date_ms": 1790524800000,
+      "bars": 60
+    },
+    "600160.SH": {
+      "first_date_ms": 1783267200000,
+      "last_date_ms": 1790524800000,
+      "bars": 60
+    },
+    "601127.SH": {
+      "first_date_ms": 1783267200000,
+      "last_date_ms": 1790524800000,
+      "bars": 60
+    },
+    "600482.SH": {
+      "first_date_ms": 1783267200000,
+      "last_date_ms": 1790524800000,
+      "bars": 60
+    },
+    "002463.SZ": {
+      "first_date_ms": 1783267200000,
+      "last_date_ms": 1790524800000,
+      "bars": 60
+    },
+    "300394.SZ": {
+      "first_date_ms": 1783267200000,
+      "last_date_ms": 1790524800000,
+      "bars": 60
+    },
+    "601136.SH": {
+      "first_date_ms": 1783267200000,
+      "last_date_ms": 1790524800000,
+      "bars": 60
+    },
+    "688472.SH": {
+      "first_date_ms": 1783267200000,
+      "last_date_ms": 1790524800000,
+      "bars": 60
+    },
+    "688506.SH": {
+      "first_date_ms": 1783267200000,
+      "last_date_ms": 1790524800000,
+      "bars": 60
+    },
+    "300502.SZ": {
+      "first_date_ms": 1783267200000,
+      "last_date_ms": 1790524800000,
+      "bars": 60
+    },
+    "000630.SZ": {
+      "first_date_ms": 1783267200000,
+      "last_date_ms": 1790524800000,
+      "bars": 60
+    },
+    "000975.SZ": {
+      "first_date_ms": 1783267200000,
+      "last_date_ms": 1790524800000,
+      "bars": 60
+    },
+    "002028.SZ": {
+      "first_date_ms": 1783267200000,
+      "last_date_ms": 1790524800000,
+      "bars": 60
+    },
+    "002422.SZ": {
+      "first_date_ms": 1783267200000,
+      "last_date_ms": 1790524800000,
+      "bars": 60
+    },
+    "301269.SZ": {
+      "first_date_ms": 1783267200000,
+      "last_date_ms": 1790524800000,
+      "bars": 60
+    },
+    "300316.SZ": {
+      "first_date_ms": 1783267200000,
+      "last_date_ms": 1790524800000,
+      "bars": 60
+    },
+    "300308.SZ": {
+      "first_date_ms": 1783267200000,
+      "last_date_ms": 1790524800000,
+      "bars": 60
+    },
+    "300274.SZ": {
+      "first_date_ms": 1783267200000,
+      "last_date_ms": 1790524800000,
+      "bars": 60
+    },
+    "300014.SZ": {
+      "first_date_ms": 1783267200000,
+      "last_date_ms": 1790524800000,
+      "bars": 60
+    },
+    "300122.SZ": {
+      "first_date_ms": 1783267200000,
+      "last_date_ms": 1790524800000,
+      "bars": 60
+    },
+    "300015.SZ": {
+      "first_date_ms": 1783267200000,
+      "last_date_ms": 1790524800000,
+      "bars": 60
+    },
+    "300033.SZ": {
+      "first_date_ms": 1783267200000,
+      "last_date_ms": 1790524800000,
+      "bars": 60
+    },
+    "000999.SZ": {
+      "first_date_ms": 1783267200000,
+      "last_date_ms": 1790524800000,
+      "bars": 60
+    },
+    "002466.SZ": {
+      "first_date_ms": 1783267200000,
+      "last_date_ms": 1790524800000,
+      "bars": 60
+    },
+    "002371.SZ": {
+      "first_date_ms": 1783267200000,
+      "last_date_ms": 1790524800000,
+      "bars": 60
+    },
+    "002311.SZ": {
+      "first_date_ms": 1783267200000,
+      "last_date_ms": 1790524800000,
+      "bars": 60
+    },
+    "002460.SZ": {
+      "first_date_ms": 1783267200000,
+      "last_date_ms": 1790524800000,
+      "bars": 60
+    },
+    "002352.SZ": {
+      "first_date_ms": 1783267200000,
+      "last_date_ms": 1790524800000,
+      "bars": 60
+    },
+    "000166.SZ": {
+      "first_date_ms": 1783267200000,
+      "last_date_ms": 1790524800000,
+      "bars": 60
+    },
+    "002415.SZ": {
+      "first_date_ms": 1783267200000,
+      "last_date_ms": 1790524800000,
+      "bars": 60
+    },
+    "002304.SZ": {
+      "first_date_ms": 1783267200000,
+      "last_date_ms": 1790524800000,
+      "bars": 60
+    },
+    "688271.SH": {
+      "first_date_ms": 1783267200000,
+      "last_date_ms": 1790524800000,
+      "bars": 60
+    },
+    "002648.SZ": {
+      "first_date_ms": 1783267200000,
+      "last_date_ms": 1790524800000,
+      "bars": 60
+    },
+    "002709.SZ": {
+      "first_date_ms": 1783267200000,
+      "last_date_ms": 1790524800000,
+      "bars": 60
+    },
+    "000301.SZ": {
+      "first_date_ms": 1783267200000,
+      "last_date_ms": 1790524800000,
+      "bars": 60
+    },
+    "002493.SZ": {
+      "first_date_ms": 1783267200000,
+      "last_date_ms": 1790524800000,
+      "bars": 60
+    },
+    "002475.SZ": {
+      "first_date_ms": 1783267200000,
+      "last_date_ms": 1790524800000,
+      "bars": 60
+    },
+    "002594.SZ": {
+      "first_date_ms": 1783267200000,
+      "last_date_ms": 1790524800000,
+      "bars": 60
+    },
+    "605117.SH": {
+      "first_date_ms": 1783267200000,
+      "last_date_ms": 1790524800000,
+      "bars": 60
+    },
+    "605499.SH": {
+      "first_date_ms": 1783267200000,
+      "last_date_ms": 1790524800000,
+      "bars": 60
+    },
+    "300413.SZ": {
+      "first_date_ms": 1783267200000,
+      "last_date_ms": 1790524800000,
+      "bars": 60
+    },
+    "300433.SZ": {
+      "first_date_ms": 1783267200000,
+      "last_date_ms": 1790524800000,
+      "bars": 60
+    },
+    "300408.SZ": {
+      "first_date_ms": 1783267200000,
+      "last_date_ms": 1790524800000,
+      "bars": 60
+    },
+    "000338.SZ": {
+      "first_date_ms": 1783267200000,
+      "last_date_ms": 1790524800000,
+      "bars": 60
+    },
+    "002179.SZ": {
+      "first_date_ms": 1783267200000,
+      "last_date_ms": 1790524800000,
+      "bars": 60
+    },
+    "002230.SZ": {
+      "first_date_ms": 1783267200000,
+      "last_date_ms": 1790524800000,
+      "bars": 60
+    },
+    "002236.SZ": {
+      "first_date_ms": 1783267200000,
+      "last_date_ms": 1790524800000,
+      "bars": 60
+    },
+    "002241.SZ": {
+      "first_date_ms": 1783267200000,
+      "last_date_ms": 1790524800000,
+      "bars": 60
+    },
+    "000157.SZ": {
+      "first_date_ms": 1783267200000,
+      "last_date_ms": 1790524800000,
+      "bars": 60
+    },
+    "002142.SZ": {
+      "first_date_ms": 1783267200000,
+      "last_date_ms": 1790524800000,
+      "bars": 60
+    },
+    "601872.SH": {
+      "first_date_ms": 1783267200000,
+      "last_date_ms": 1790524800000,
+      "bars": 60
+    },
+    "000792.SZ": {
+      "first_date_ms": 1783267200000,
+      "last_date_ms": 1790524800000,
+      "bars": 60
+    },
+    "601898.SH": {
+      "first_date_ms": 1783267200000,
+      "last_date_ms": 1790524800000,
+      "bars": 60
+    },
+    "002916.SZ": {
+      "first_date_ms": 1783267200000,
+      "last_date_ms": 1790524800000,
+      "bars": 60
+    },
+    "002714.SZ": {
+      "first_date_ms": 1783267200000,
+      "last_date_ms": 1790524800000,
+      "bars": 60
+    },
+    "002736.SZ": {
+      "first_date_ms": 1783267200000,
+      "last_date_ms": 1790524800000,
+      "bars": 60
+    },
+    "688981.SH": {
+      "first_date_ms": 1783267200000,
+      "last_date_ms": 1790524800000,
+      "bars": 60
+    },
+    "688396.SH": {
+      "first_date_ms": 1783267200000,
+      "last_date_ms": 1790524800000,
+      "bars": 60
+    },
+    "000977.SZ": {
+      "first_date_ms": 1783267200000,
+      "last_date_ms": 1790524800000,
+      "bars": 60
+    },
+    "000938.SZ": {
+      "first_date_ms": 1783267200000,
+      "last_date_ms": 1790524800000,
+      "bars": 60
+    },
+    "000963.SZ": {
+      "first_date_ms": 1783267200000,
+      "last_date_ms": 1790524800000,
+      "bars": 60
+    },
+    "000063.SZ": {
+      "first_date_ms": 1783267200000,
+      "last_date_ms": 1790524800000,
+      "bars": 60
+    },
+    "000895.SZ": {
+      "first_date_ms": 1783267200000,
+      "last_date_ms": 1790524800000,
+      "bars": 60
+    },
+    "601916.SH": {
+      "first_date_ms": 1783267200000,
+      "last_date_ms": 1790524800000,
+      "bars": 60
+    },
+    "601995.SH": {
+      "first_date_ms": 1782403200000,
+      "last_date_ms": 1790524800000,
+      "bars": 60
+    },
+    "601985.SH": {
+      "first_date_ms": 1783267200000,
+      "last_date_ms": 1790524800000,
+      "bars": 60
+    },
+    "601919.SH": {
+      "first_date_ms": 1783267200000,
+      "last_date_ms": 1790524800000,
+      "bars": 60
+    },
+    "601901.SH": {
+      "first_date_ms": 1783267200000,
+      "last_date_ms": 1790524800000,
+      "bars": 60
+    },
+    "601939.SH": {
+      "first_date_ms": 1783267200000,
+      "last_date_ms": 1790524800000,
+      "bars": 60
+    },
+    "601988.SH": {
+      "first_date_ms": 1783267200000,
+      "last_date_ms": 1790524800000,
+      "bars": 60
+    },
+    "688256.SH": {
+      "first_date_ms": 1783267200000,
+      "last_date_ms": 1790524800000,
+      "bars": 60
+    },
+    "688041.SH": {
+      "first_date_ms": 1783267200000,
+      "last_date_ms": 1790524800000,
+      "bars": 60
+    },
+    "688223.SH": {
+      "first_date_ms": 1783267200000,
+      "last_date_ms": 1790524800000,
+      "bars": 60
+    },
+    "688303.SH": {
+      "first_date_ms": 1783267200000,
+      "last_date_ms": 1790524800000,
+      "bars": 60
+    },
+    "688126.SH": {
+      "first_date_ms": 1783267200000,
+      "last_date_ms": 1790524800000,
+      "bars": 60
+    },
+    "688111.SH": {
+      "first_date_ms": 1783267200000,
+      "last_date_ms": 1790524800000,
+      "bars": 60
+    },
+    "688036.SH": {
+      "first_date_ms": 1783267200000,
+      "last_date_ms": 1790524800000,
+      "bars": 60
+    },
+    "601816.SH": {
+      "first_date_ms": 1783267200000,
+      "last_date_ms": 1790524800000,
+      "bars": 60
+    },
+    "601838.SH": {
+      "first_date_ms": 1783267200000,
+      "last_date_ms": 1790524800000,
+      "bars": 60
+    },
+    "601788.SH": {
+      "first_date_ms": 1783267200000,
+      "last_date_ms": 1790524800000,
+      "bars": 60
+    },
+    "601800.SH": {
+      "first_date_ms": 1783267200000,
+      "last_date_ms": 1790524800000,
+      "bars": 60
+    },
+    "601818.SH": {
+      "first_date_ms": 1783267200000,
+      "last_date_ms": 1790524800000,
+      "bars": 60
+    },
+    "601766.SH": {
+      "first_date_ms": 1783267200000,
+      "last_date_ms": 1790524800000,
+      "bars": 60
+    },
+    "601857.SH": {
+      "first_date_ms": 1783267200000,
+      "last_date_ms": 1790524800000,
+      "bars": 60
+    },
+    "688012.SH": {
+      "first_date_ms": 1783267200000,
+      "last_date_ms": 1790524800000,
+      "bars": 60
+    },
+    "688008.SH": {
+      "first_date_ms": 1783267200000,
+      "last_date_ms": 1790524800000,
+      "bars": 60
+    },
+    "603986.SH": {
+      "first_date_ms": 1783267200000,
+      "last_date_ms": 1790524800000,
+      "bars": 60
+    },
+    "603993.SH": {
+      "first_date_ms": 1783267200000,
+      "last_date_ms": 1790524800000,
+      "bars": 60
+    },
+    "000858.SZ": {
+      "first_date_ms": 1783267200000,
+      "last_date_ms": 1790524800000,
+      "bars": 60
+    },
+    "601689.SH": {
+      "first_date_ms": 1783267200000,
+      "last_date_ms": 1790524800000,
+      "bars": 60
+    },
+    "601728.SH": {
+      "first_date_ms": 1783267200000,
+      "last_date_ms": 1790524800000,
+      "bars": 60
+    },
+    "601658.SH": {
+      "first_date_ms": 1783267200000,
+      "last_date_ms": 1790524800000,
+      "bars": 60
+    },
+    "601698.SH": {
+      "first_date_ms": 1783267200000,
+      "last_date_ms": 1790524800000,
+      "bars": 60
+    },
+    "601669.SH": {
+      "first_date_ms": 1783267200000,
+      "last_date_ms": 1790524800000,
+      "bars": 60
+    },
+    "601633.SH": {
+      "first_date_ms": 1783267200000,
+      "last_date_ms": 1790524800000,
+      "bars": 60
+    },
+    "000776.SZ": {
+      "first_date_ms": 1783267200000,
+      "last_date_ms": 1790524800000,
+      "bars": 60
+    },
+    "601668.SH": {
+      "first_date_ms": 1783267200000,
+      "last_date_ms": 1790524800000,
+      "bars": 60
+    },
+    "601688.SH": {
+      "first_date_ms": 1783267200000,
+      "last_date_ms": 1790524800000,
+      "bars": 60
+    },
+    "601059.SH": {
+      "first_date_ms": 1782144000000,
+      "last_date_ms": 1789315200000,
+      "bars": 60
+    },
+    "600989.SH": {
+      "first_date_ms": 1783267200000,
+      "last_date_ms": 1790524800000,
+      "bars": 60
+    },
+    "601012.SH": {
+      "first_date_ms": 1783267200000,
+      "last_date_ms": 1790524800000,
+      "bars": 60
+    },
+    "601998.SH": {
+      "first_date_ms": 1783267200000,
+      "last_date_ms": 1790524800000,
+      "bars": 60
+    },
+    "601607.SH": {
+      "first_date_ms": 1783267200000,
+      "last_date_ms": 1790524800000,
+      "bars": 60
+    },
+    "601360.SH": {
+      "first_date_ms": 1783267200000,
+      "last_date_ms": 1790524800000,
+      "bars": 60
+    },
+    "601336.SH": {
+      "first_date_ms": 1783267200000,
+      "last_date_ms": 1790524800000,
+      "bars": 60
+    },
+    "601377.SH": {
+      "first_date_ms": 1783267200000,
+      "last_date_ms": 1790524800000,
+      "bars": 60
+    },
+    "601600.SH": {
+      "first_date_ms": 1783267200000,
+      "last_date_ms": 1790524800000,
+      "bars": 60
+    },
+    "601390.SH": {
+      "first_date_ms": 1783267200000,
+      "last_date_ms": 1790524800000,
+      "bars": 60
+    },
+    "601398.SH": {
+      "first_date_ms": 1783267200000,
+      "last_date_ms": 1790524800000,
+      "bars": 60
+    },
+    "601601.SH": {
+      "first_date_ms": 1783267200000,
+      "last_date_ms": 1790524800000,
+      "bars": 60
+    },
+    "600926.SH": {
+      "first_date_ms": 1783267200000,
+      "last_date_ms": 1790524800000,
+      "bars": 60
+    },
+    "600919.SH": {
+      "first_date_ms": 1783267200000,
+      "last_date_ms": 1790524800000,
+      "bars": 60
+    },
+    "600893.SH": {
+      "first_date_ms": 1783267200000,
+      "last_date_ms": 1790524800000,
+      "bars": 60
+    },
+    "600887.SH": {
+      "first_date_ms": 1783267200000,
+      "last_date_ms": 1790524800000,
+      "bars": 60
+    },
+    "600900.SH": {
+      "first_date_ms": 1783267200000,
+      "last_date_ms": 1790524800000,
+      "bars": 60
+    },
+    "002074.SZ": {
+      "first_date_ms": 1783267200000,
+      "last_date_ms": 1790524800000,
+      "bars": 60
+    },
+    "002049.SZ": {
+      "first_date_ms": 1783267200000,
+      "last_date_ms": 1790524800000,
+      "bars": 60
+    },
+    "002001.SZ": {
+      "first_date_ms": 1783267200000,
+      "last_date_ms": 1790524800000,
+      "bars": 60
+    },
+    "002050.SZ": {
+      "first_date_ms": 1783267200000,
+      "last_date_ms": 1790524800000,
+      "bars": 60
+    },
+    "002027.SZ": {
+      "first_date_ms": 1783267200000,
+      "last_date_ms": 1790524800000,
+      "bars": 60
+    },
+    "001979.SZ": {
+      "first_date_ms": 1783267200000,
+      "last_date_ms": 1790524800000,
+      "bars": 60
+    },
+    "000100.SZ": {
+      "first_date_ms": 1783267200000,
+      "last_date_ms": 1790524800000,
+      "bars": 60
+    },
+    "603260.SH": {
+      "first_date_ms": 1783267200000,
+      "last_date_ms": 1790524800000,
+      "bars": 60
+    },
+    "603392.SH": {
+      "first_date_ms": 1783267200000,
+      "last_date_ms": 1790524800000,
+      "bars": 60
+    },
+    "603369.SH": {
+      "first_date_ms": 1783267200000,
+      "last_date_ms": 1790524800000,
+      "bars": 60
+    },
+    "603501.SH": {
+      "first_date_ms": 1783267200000,
+      "last_date_ms": 1790524800000,
+      "bars": 60
+    },
+    "603019.SH": {
+      "first_date_ms": 1783267200000,
+      "last_date_ms": 1790524800000,
+      "bars": 60
+    },
+    "603259.SH": {
+      "first_date_ms": 1783267200000,
+      "last_date_ms": 1790524800000,
+      "bars": 60
+    },
+    "603288.SH": {
+      "first_date_ms": 1783267200000,
+      "last_date_ms": 1790524800000,
+      "bars": 60
+    },
+    "603799.SH": {
+      "first_date_ms": 1783267200000,
+      "last_date_ms": 1790524800000,
+      "bars": 60
+    },
+    "600875.SH": {
+      "first_date_ms": 1783267200000,
+      "last_date_ms": 1790524800000,
+      "bars": 60
+    },
+    "600803.SH": {
+      "first_date_ms": 1783267200000,
+      "last_date_ms": 1790524800000,
+      "bars": 60
+    },
+    "600845.SH": {
+      "first_date_ms": 1783267200000,
+      "last_date_ms": 1790524800000,
+      "bars": 60
+    },
+    "601117.SH": {
+      "first_date_ms": 1783267200000,
+      "last_date_ms": 1790524800000,
+      "bars": 60
+    },
+    "601100.SH": {
+      "first_date_ms": 1783267200000,
+      "last_date_ms": 1790524800000,
+      "bars": 60
+    },
+    "601138.SH": {
+      "first_date_ms": 1783267200000,
+      "last_date_ms": 1790524800000,
+      "bars": 60
+    },
+    "601066.SH": {
+      "first_date_ms": 1783267200000,
+      "last_date_ms": 1790524800000,
+      "bars": 60
+    },
+    "601088.SH": {
+      "first_date_ms": 1783267200000,
+      "last_date_ms": 1790524800000,
+      "bars": 60
+    },
+    "601111.SH": {
+      "first_date_ms": 1783267200000,
+      "last_date_ms": 1790524800000,
+      "bars": 60
+    },
+    "601166.SH": {
+      "first_date_ms": 1783267200000,
+      "last_date_ms": 1790524800000,
+      "bars": 60
+    },
+    "601169.SH": {
+      "first_date_ms": 1783267200000,
+      "last_date_ms": 1790524800000,
+      "bars": 60
+    },
+    "601186.SH": {
+      "first_date_ms": 1783267200000,
+      "last_date_ms": 1790524800000,
+      "bars": 60
+    },
+    "600674.SH": {
+      "first_date_ms": 1783267200000,
+      "last_date_ms": 1790524800000,
+      "bars": 60
+    },
+    "601868.SH": {
+      "first_date_ms": 1783267200000,
+      "last_date_ms": 1790524800000,
+      "bars": 60
+    },
+    "601878.SH": {
+      "first_date_ms": 1783267200000,
+      "last_date_ms": 1790524800000,
+      "bars": 60
+    },
+    "601881.SH": {
+      "first_date_ms": 1783267200000,
+      "last_date_ms": 1790524800000,
+      "bars": 60
+    },
+    "601877.SH": {
+      "first_date_ms": 1783267200000,
+      "last_date_ms": 1790524800000,
+      "bars": 60
+    },
+    "601888.SH": {
+      "first_date_ms": 1783267200000,
+      "last_date_ms": 1790524800000,
+      "bars": 60
+    },
+    "601899.SH": {
+      "first_date_ms": 1783267200000,
+      "last_date_ms": 1790524800000,
+      "bars": 60
+    },
+    "601319.SH": {
+      "first_date_ms": 1783267200000,
+      "last_date_ms": 1790524800000,
+      "bars": 60
+    },
+    "601238.SH": {
+      "first_date_ms": 1782057600000,
+      "last_date_ms": 1789056000000,
+      "bars": 60
+    },
+    "601229.SH": {
+      "first_date_ms": 1783267200000,
+      "last_date_ms": 1790524800000,
+      "bars": 60
+    },
+    "601211.SH": {
+      "first_date_ms": 1783267200000,
+      "last_date_ms": 1790524800000,
+      "bars": 60
+    },
+    "601225.SH": {
+      "first_date_ms": 1783267200000,
+      "last_date_ms": 1790524800000,
+      "bars": 60
+    },
+    "601318.SH": {
+      "first_date_ms": 1783267200000,
+      "last_date_ms": 1790524800000,
+      "bars": 60
+    },
+    "601288.SH": {
+      "first_date_ms": 1783267200000,
+      "last_date_ms": 1790524800000,
+      "bars": 60
+    },
+    "601328.SH": {
+      "first_date_ms": 1783267200000,
+      "last_date_ms": 1790524800000,
+      "bars": 60
+    },
+    "000768.SZ": {
+      "first_date_ms": 1783267200000,
+      "last_date_ms": 1790524800000,
+      "bars": 60
+    },
+    "600515.SH": {
+      "first_date_ms": 1783267200000,
+      "last_date_ms": 1790524800000,
+      "bars": 60
+    },
+    "600489.SH": {
+      "first_date_ms": 1783267200000,
+      "last_date_ms": 1790524800000,
+      "bars": 60
+    },
+    "600372.SH": {
+      "first_date_ms": 1783267200000,
+      "last_date_ms": 1790524800000,
+      "bars": 60
+    },
+    "600460.SH": {
+      "first_date_ms": 1783267200000,
+      "last_date_ms": 1790524800000,
+      "bars": 60
+    },
+    "600600.SH": {
+      "first_date_ms": 1783267200000,
+      "last_date_ms": 1790524800000,
+      "bars": 60
+    },
+    "600584.SH": {
+      "first_date_ms": 1783267200000,
+      "last_date_ms": 1790524800000,
+      "bars": 60
+    },
+    "000708.SZ": {
+      "first_date_ms": 1783267200000,
+      "last_date_ms": 1790524800000,
+      "bars": 60
+    },
+    "600918.SH": {
+      "first_date_ms": 1783267200000,
+      "last_date_ms": 1790524800000,
+      "bars": 60
+    },
+    "600905.SH": {
+      "first_date_ms": 1783267200000,
+      "last_date_ms": 1790524800000,
+      "bars": 60
+    },
+    "600941.SH": {
+      "first_date_ms": 1783267200000,
+      "last_date_ms": 1790524800000,
+      "bars": 60
+    },
+    "600938.SH": {
+      "first_date_ms": 1783267200000,
+      "last_date_ms": 1790524800000,
+      "bars": 60
+    },
+    "601628.SH": {
+      "first_date_ms": 1783267200000,
+      "last_date_ms": 1790524800000,
+      "bars": 60
+    },
+    "601618.SH": {
+      "first_date_ms": 1783267200000,
+      "last_date_ms": 1790524800000,
+      "bars": 60
+    },
+    "000807.SZ": {
+      "first_date_ms": 1783267200000,
+      "last_date_ms": 1790524800000,
+      "bars": 60
+    },
+    "300832.SZ": {
+      "first_date_ms": 1783267200000,
+      "last_date_ms": 1790524800000,
+      "bars": 60
+    },
+    "600027.SH": {
+      "first_date_ms": 1783267200000,
+      "last_date_ms": 1790524800000,
+      "bars": 60
+    },
+    "600415.SH": {
+      "first_date_ms": 1783267200000,
+      "last_date_ms": 1790524800000,
+      "bars": 60
+    },
+    "300442.SZ": {
+      "first_date_ms": 1783267200000,
+      "last_date_ms": 1790524800000,
+      "bars": 60
+    },
+    "600026.SH": {
+      "first_date_ms": 1783267200000,
+      "last_date_ms": 1790524800000,
+      "bars": 60
+    },
+    "603296.SH": {
+      "first_date_ms": 1783267200000,
+      "last_date_ms": 1790524800000,
+      "bars": 60
+    },
+    "688009.SH": {
+      "first_date_ms": 1783267200000,
+      "last_date_ms": 1790524800000,
+      "bars": 60
+    },
+    "688082.SH": {
+      "first_date_ms": 1783267200000,
+      "last_date_ms": 1790524800000,
+      "bars": 60
+    },
+    "001965.SZ": {
+      "first_date_ms": 1783267200000,
+      "last_date_ms": 1790524800000,
+      "bars": 60
+    },
+    "300418.SZ": {
+      "first_date_ms": 1783267200000,
+      "last_date_ms": 1790524800000,
+      "bars": 60
+    },
+    "000596.SZ": {
+      "first_date_ms": 1783267200000,
+      "last_date_ms": 1790524800000,
+      "bars": 60
+    },
+    "600150.SH": {
+      "first_date_ms": 1783267200000,
+      "last_date_ms": 1790524800000,
+      "bars": 60
+    },
+    "600426.SH": {
+      "first_date_ms": 1783267200000,
+      "last_date_ms": 1790524800000,
+      "bars": 60
+    },
+    "600196.SH": {
+      "first_date_ms": 1783267200000,
+      "last_date_ms": 1790524800000,
+      "bars": 60
+    },
+    "600085.SH": {
+      "first_date_ms": 1783267200000,
+      "last_date_ms": 1790524800000,
+      "bars": 60
+    },
+    "600111.SH": {
+      "first_date_ms": 1783267200000,
+      "last_date_ms": 1790524800000,
+      "bars": 60
+    },
+    "600104.SH": {
+      "first_date_ms": 1783267200000,
+      "last_date_ms": 1790524800000,
+      "bars": 60
+    },
+    "600115.SH": {
+      "first_date_ms": 1783267200000,
+      "last_date_ms": 1790524800000,
+      "bars": 60
+    },
+    "600176.SH": {
+      "first_date_ms": 1783267200000,
+      "last_date_ms": 1790524800000,
+      "bars": 60
+    },
+    "600183.SH": {
+      "first_date_ms": 1783267200000,
+      "last_date_ms": 1790524800000,
+      "bars": 60
+    },
+    "600089.SH": {
+      "first_date_ms": 1783267200000,
+      "last_date_ms": 1790524800000,
+      "bars": 60
+    },
+    "600188.SH": {
+      "first_date_ms": 1783267200000,
+      "last_date_ms": 1790524800000,
+      "bars": 60
+    },
+    "600219.SH": {
+      "first_date_ms": 1783267200000,
+      "last_date_ms": 1790524800000,
+      "bars": 60
+    },
+    "601009.SH": {
+      "first_date_ms": 1783267200000,
+      "last_date_ms": 1790524800000,
+      "bars": 60
+    },
+    "601006.SH": {
+      "first_date_ms": 1783267200000,
+      "last_date_ms": 1790524800000,
+      "bars": 60
+    },
+    "600999.SH": {
+      "first_date_ms": 1783267200000,
+      "last_date_ms": 1790524800000,
+      "bars": 60
+    },
+    "000002.SZ": {
+      "first_date_ms": 1783267200000,
+      "last_date_ms": 1790524800000,
+      "bars": 60
+    },
+    "000725.SZ": {
+      "first_date_ms": 1783267200000,
+      "last_date_ms": 1790524800000,
+      "bars": 60
+    },
+    "600958.SH": {
+      "first_date_ms": 1783267200000,
+      "last_date_ms": 1790524800000,
+      "bars": 60
+    },
+    "601021.SH": {
+      "first_date_ms": 1783267200000,
+      "last_date_ms": 1790524800000,
+      "bars": 60
+    },
+    "000333.SZ": {
+      "first_date_ms": 1783267200000,
+      "last_date_ms": 1790524800000,
+      "bars": 60
+    },
+    "002938.SZ": {
+      "first_date_ms": 1783267200000,
+      "last_date_ms": 1790524800000,
+      "bars": 60
+    },
+    "688521.SH": {
+      "first_date_ms": 1783267200000,
+      "last_date_ms": 1790524800000,
+      "bars": 60
+    },
+    "003816.SZ": {
+      "first_date_ms": 1783267200000,
+      "last_date_ms": 1790524800000,
+      "bars": 60
+    },
+    "002920.SZ": {
+      "first_date_ms": 1783267200000,
+      "last_date_ms": 1790524800000,
+      "bars": 60
+    },
+    "300124.SZ": {
+      "first_date_ms": 1783267200000,
+      "last_date_ms": 1790524800000,
+      "bars": 60
+    },
+    "300059.SZ": {
+      "first_date_ms": 1783267200000,
+      "last_date_ms": 1790524800000,
+      "bars": 60
+    },
+    "000001.SZ": {
+      "first_date_ms": 1783267200000,
+      "last_date_ms": 1790524800000,
+      "bars": 60
+    },
+    "300498.SZ": {
+      "first_date_ms": 1783267200000,
+      "last_date_ms": 1790524800000,
+      "bars": 60
+    },
+    "300628.SZ": {
+      "first_date_ms": 1783267200000,
+      "last_date_ms": 1790524800000,
+      "bars": 60
+    },
+    "300750.SZ": {
+      "first_date_ms": 1783267200000,
+      "last_date_ms": 1790524800000,
+      "bars": 60
+    },
+    "300760.SZ": {
+      "first_date_ms": 1783267200000,
+      "last_date_ms": 1790524800000,
+      "bars": 60
+    },
+    "000408.SZ": {
+      "first_date_ms": 1783267200000,
+      "last_date_ms": 1790524800000,
+      "bars": 60
+    },
+    "300661.SZ": {
+      "first_date_ms": 1783267200000,
+      "last_date_ms": 1790524800000,
+      "bars": 60
+    },
+    "600362.SH": {
+      "first_date_ms": 1783267200000,
+      "last_date_ms": 1790524800000,
+      "bars": 60
+    },
+    "600309.SH": {
+      "first_date_ms": 1783267200000,
+      "last_date_ms": 1790524800000,
+      "bars": 60
+    },
+    "600276.SH": {
+      "first_date_ms": 1783267200000,
+      "last_date_ms": 1790524800000,
+      "bars": 60
+    },
+    "600346.SH": {
+      "first_date_ms": 1783267200000,
+      "last_date_ms": 1790524800000,
+      "bars": 60
+    },
+    "600233.SH": {
+      "first_date_ms": 1783267200000,
+      "last_date_ms": 1790524800000,
+      "bars": 60
+    },
+    "000617.SZ": {
+      "first_date_ms": 1783267200000,
+      "last_date_ms": 1790524800000,
+      "bars": 60
+    },
+    "600000.SH": {
+      "first_date_ms": 1783267200000,
+      "last_date_ms": 1790524800000,
+      "bars": 60
+    },
+    "000425.SZ": {
+      "first_date_ms": 1783267200000,
+      "last_date_ms": 1790524800000,
+      "bars": 60
+    },
+    "300896.SZ": {
+      "first_date_ms": 1783267200000,
+      "last_date_ms": 1790524800000,
+      "bars": 60
+    },
+    "300999.SZ": {
+      "first_date_ms": 1783267200000,
+      "last_date_ms": 1790524800000,
+      "bars": 60
+    },
+    "000625.SZ": {
+      "first_date_ms": 1783267200000,
+      "last_date_ms": 1790524800000,
+      "bars": 60
+    },
+    "600547.SH": {
+      "first_date_ms": 1783267200000,
+      "last_date_ms": 1790524800000,
+      "bars": 60
+    },
+    "600519.SH": {
+      "first_date_ms": 1783267200000,
+      "last_date_ms": 1790524800000,
+      "bars": 60
+    },
+    "600406.SH": {
+      "first_date_ms": 1783267200000,
+      "last_date_ms": 1790524800000,
+      "bars": 60
+    },
+    "600436.SH": {
+      "first_date_ms": 1783267200000,
+      "last_date_ms": 1790524800000,
+      "bars": 60
+    },
+    "600438.SH": {
+      "first_date_ms": 1783267200000,
+      "last_date_ms": 1790524800000,
+      "bars": 60
+    },
+    "600016.SH": {
+      "first_date_ms": 1783267200000,
+      "last_date_ms": 1790524800000,
+      "bars": 60
+    },
+    "600010.SH": {
+      "first_date_ms": 1783267200000,
+      "last_date_ms": 1790524800000,
+      "bars": 60
+    },
+    "600019.SH": {
+      "first_date_ms": 1783267200000,
+      "last_date_ms": 1790524800000,
+      "bars": 60
+    },
+    "600015.SH": {
+      "first_date_ms": 1783267200000,
+      "last_date_ms": 1790524800000,
+      "bars": 60
+    },
+    "600009.SH": {
+      "first_date_ms": 1783267200000,
+      "last_date_ms": 1790524800000,
+      "bars": 60
+    },
+    "000538.SZ": {
+      "first_date_ms": 1783267200000,
+      "last_date_ms": 1790524800000,
+      "bars": 60
+    },
+    "600018.SH": {
+      "first_date_ms": 1783267200000,
+      "last_date_ms": 1790524800000,
+      "bars": 60
+    },
+    "600011.SH": {
+      "first_date_ms": 1783267200000,
+      "last_date_ms": 1790524800000,
+      "bars": 60
+    },
+    "600025.SH": {
+      "first_date_ms": 1783267200000,
+      "last_date_ms": 1790524800000,
+      "bars": 60
+    },
+    "600023.SH": {
+      "first_date_ms": 1783267200000,
+      "last_date_ms": 1790524800000,
+      "bars": 60
+    },
+    "600795.SH": {
+      "first_date_ms": 1783267200000,
+      "last_date_ms": 1790524800000,
+      "bars": 60
+    },
+    "600741.SH": {
+      "first_date_ms": 1783267200000,
+      "last_date_ms": 1790524800000,
+      "bars": 60
+    },
+    "600886.SH": {
+      "first_date_ms": 1783267200000,
+      "last_date_ms": 1790524800000,
+      "bars": 60
+    },
+    "600809.SH": {
+      "first_date_ms": 1783267200000,
+      "last_date_ms": 1790524800000,
+      "bars": 60
+    },
+    "600760.SH": {
+      "first_date_ms": 1783267200000,
+      "last_date_ms": 1790524800000,
+      "bars": 60
+    },
+    "600050.SH": {
+      "first_date_ms": 1783267200000,
+      "last_date_ms": 1790524800000,
+      "bars": 60
+    },
+    "600036.SH": {
+      "first_date_ms": 1783267200000,
+      "last_date_ms": 1790524800000,
+      "bars": 60
+    },
+    "600031.SH": {
+      "first_date_ms": 1783267200000,
+      "last_date_ms": 1790524800000,
+      "bars": 60
+    },
+    "600030.SH": {
+      "first_date_ms": 1783267200000,
+      "last_date_ms": 1790524800000,
+      "bars": 60
+    },
+    "600028.SH": {
+      "first_date_ms": 1783267200000,
+      "last_date_ms": 1790524800000,
+      "bars": 60
+    },
+    "000568.SZ": {
+      "first_date_ms": 1783267200000,
+      "last_date_ms": 1790524800000,
+      "bars": 60
+    },
+    "600048.SH": {
+      "first_date_ms": 1783267200000,
+      "last_date_ms": 1790524800000,
+      "bars": 60
+    },
+    "600029.SH": {
+      "first_date_ms": 1783267200000,
+      "last_date_ms": 1790524800000,
+      "bars": 60
+    },
+    "600061.SH": {
+      "first_date_ms": 1783267200000,
+      "last_date_ms": 1790524800000,
+      "bars": 60
+    },
+    "600039.SH": {
+      "first_date_ms": 1783267200000,
+      "last_date_ms": 1790524800000,
+      "bars": 60
+    },
+    "000651.SZ": {
+      "first_date_ms": 1783267200000,
+      "last_date_ms": 1790524800000,
+      "bars": 60
+    },
+    "600690.SH": {
+      "first_date_ms": 1783267200000,
+      "last_date_ms": 1790524800000,
+      "bars": 60
+    },
+    "600660.SH": {
+      "first_date_ms": 1783267200000,
+      "last_date_ms": 1790524800000,
+      "bars": 60
+    },
+    "600585.SH": {
+      "first_date_ms": 1783267200000,
+      "last_date_ms": 1790524800000,
+      "bars": 60
+    },
+    "600588.SH": {
+      "first_date_ms": 1783267200000,
+      "last_date_ms": 1790524800000,
+      "bars": 60
+    },
+    "600570.SH": {
+      "first_date_ms": 1783267200000,
+      "last_date_ms": 1790524800000,
+      "bars": 60
+    },
+    "688183.SH": {
+      "first_date_ms": 1783267200000,
+      "last_date_ms": 1790524800000,
+      "bars": 60
+    },
+    "688072.SH": {
+      "first_date_ms": 1782057600000,
+      "last_date_ms": 1790524800000,
+      "bars": 60
+    },
+    "601727.SH": {
+      "first_date_ms": 1783267200000,
+      "last_date_ms": 1790524800000,
+      "bars": 60
+    },
+    "600549.SH": {
+      "first_date_ms": 1783267200000,
+      "last_date_ms": 1790524800000,
+      "bars": 60
+    },
+    "600221.SH": {
+      "first_date_ms": 1783267200000,
+      "last_date_ms": 1790524800000,
+      "bars": 60
+    },
+    "600118.SH": {
+      "first_date_ms": 1783267200000,
+      "last_date_ms": 1790524800000,
+      "bars": 60
+    },
+    "301308.SZ": {
+      "first_date_ms": 1783267200000,
+      "last_date_ms": 1790524800000,
+      "bars": 60
+    },
+    "301165.SZ": {
+      "first_date_ms": 1783267200000,
+      "last_date_ms": 1790524800000,
+      "bars": 60
+    },
+    "300450.SZ": {
+      "first_date_ms": 1783267200000,
+      "last_date_ms": 1790524800000,
+      "bars": 60
+    },
+    "002837.SZ": {
+      "first_date_ms": 1783267200000,
+      "last_date_ms": 1790524800000,
+      "bars": 60
+    },
+    "002602.SZ": {
+      "first_date_ms": 1783267200000,
+      "last_date_ms": 1790524800000,
+      "bars": 60
+    },
+    "002558.SZ": {
+      "first_date_ms": 1783267200000,
+      "last_date_ms": 1790524800000,
+      "bars": 60
+    },
+    "002532.SZ": {
+      "first_date_ms": 1783267200000,
+      "last_date_ms": 1790524800000,
+      "bars": 60
+    },
+    "002353.SZ": {
+      "first_date_ms": 1783267200000,
+      "last_date_ms": 1790524800000,
+      "bars": 60
+    },
+    "002202.SZ": {
+      "first_date_ms": 1783267200000,
+      "last_date_ms": 1790524800000,
+      "bars": 60
+    },
+    "001280.SZ": {
+      "first_date_ms": 1783267200000,
+      "last_date_ms": 1790524800000,
+      "bars": 60
+    },
+    "000988.SZ": {
+      "first_date_ms": 1783267200000,
+      "last_date_ms": 1790524800000,
+      "bars": 60
+    },
+    "000657.SZ": {
+      "first_date_ms": 1783267200000,
+      "last_date_ms": 1790524800000,
+      "bars": 60
+    },
+    "603893.SH": {
+      "first_date_ms": 1783267200000,
+      "last_date_ms": 1790524800000,
+      "bars": 60
+    },
+    "601456.SH": {
+      "first_date_ms": 1783267200000,
+      "last_date_ms": 1790524800000,
+      "bars": 60
+    }
+  },
+  "missing_counts": {
+    "code": 0,
+    "name": 0,
+    "revenue_yoy": 0,
+    "pe_ttm": 0,
+    "max_drawdown": 0
+  }
+}
